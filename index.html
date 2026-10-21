@@ -1,0 +1,2844 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>onCTV by Adspector — реклама на Smart TV</title>
+<meta name="description" content="onCTV — реклама на главном экране дома: в интерфейсе операционной системы Smart TV и внутри стриминговых приложений. Форматы, охват, верификация и коммерческая выгода для агентств и брендов.">
+<link rel="icon" type="image/svg+xml" href="assets/mark-pink.svg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@400;600;700;800;900&family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+
+/* ============ tokens ============ */
+:root{
+  --pink:#F88CFF;
+  --indigo:#818DFF;
+  --violet:#918ECD;
+  --navy:#323B4F;
+  --navy-deep:#232A3A;
+  --navy-deepest:#181D28;
+  --slate:#565D6B;
+  --lav-l:#C0C4DE;
+  --lav-xl:#DFE3F9;
+  --paper:#FFFFFF;
+  --paper-soft:#F5F6FC;
+  --ink:#262E40;
+
+  --grad-signal: linear-gradient(120deg, var(--pink), var(--indigo));
+  --grad-signal-soft: linear-gradient(120deg, rgba(248,140,255,.16), rgba(129,141,255,.16));
+
+  --display: 'Unbounded', sans-serif;
+  --display-weight:400;
+  --text: 'Inter', sans-serif;
+
+  --maxw: 1240px;
+  --r-sm: 8px;
+  --r-md: 11px;
+  --r-card: 18px;
+  --r-lg: 18px;
+  --r-btn: 9999px;
+
+  /* spacing scale — base unit 8px; nothing below is sized ad hoc */
+  --sp-1:4px;
+  --sp-2:8px;
+  --sp-3:12px;
+  --sp-4:16px;
+  --sp-5:24px;
+  --sp-6:32px;
+  --sp-7:48px;
+  --sp-8:80px;
+
+  /* type scale — fixed steps; nothing below is sized ad hoc */
+  --fs-2xs:.75rem;
+  --fs-xs:.8125rem;
+  --fs-sm:.875rem;
+  --fs-base:1.0625rem;
+  --fs-md:1.125rem;
+  --fs-lg:1.25rem;
+  --fs-xl:1.5rem;
+  --fs-2xl:1.875rem;
+
+  /* motion: critically-damped settle vs. a soft spring with slight carry for interaction */
+  --ease: cubic-bezier(.16,.8,.24,1);
+  --ease-spring-soft: cubic-bezier(.33,1.15,.62,1);
+
+  /* materials */
+  --glass-bg: rgba(24,29,40,.55);
+  --glass-border: rgba(255,255,255,.14);
+  --shadow-product: 3px 5px 30px rgba(0,0,0,.22);
+}
+
+*{box-sizing:border-box;}
+html{scroll-behavior:smooth;}
+@media (prefers-reduced-motion: reduce){
+  html{scroll-behavior:auto;}
+  *{animation-duration:.001ms !important; animation-iteration-count:1 !important; transition-duration:.001ms !important;}
+}
+body{
+  margin:0;
+  background:var(--paper);
+  color:var(--ink);
+  font-family:var(--text);
+  font-size:1rem;
+  line-height:1.6;
+  -webkit-font-smoothing:antialiased;
+  overflow-x:hidden;
+}
+h1,h2,h3,h4{
+  font-family:var(--display);
+  margin:0;
+  line-height:1.02;
+  letter-spacing:-.02em;
+  font-weight:800;
+}
+h2{font-weight:var(--display-weight);}
+p{margin:0;}
+a{color:inherit; text-decoration:none;}
+ul{margin:0; padding:0; list-style:none;}
+img,svg{display:block; max-width:100%;}
+.wrap{max-width:var(--maxw); margin:0 auto; padding:0 clamp(20px,5vw,64px); position:relative; z-index:1;}
+:focus-visible{outline:2.5px solid var(--pink); outline-offset:3px; border-radius:var(--r-sm);}
+
+/* ============ type utilities ============ */
+.eyebrow{
+  display:flex; align-items:center; gap:.6em;
+  font-family:var(--text);
+  font-weight:700;
+  font-size:var(--fs-2xs);
+  letter-spacing:.14em;
+  text-transform:uppercase;
+  color:var(--pink);
+}
+.eyebrow .mark-dot{width:14px; height:12px; flex:none;}
+
+.lead{
+  font-family:var(--text);
+  font-weight:300;
+  font-size:clamp(1.05rem,1.6vw,1.32rem);
+  line-height:1.5;
+  max-width:46em;
+  color:var(--lav-l);
+}
+
+.section-head{ margin-bottom:clamp(36px,5vw,56px); }
+.section-head h2{ font-size:clamp(1.8rem,3.6vw,2.7rem); margin:.5em 0 .4em; max-width:16em; color:#F6F7FC; }
+
+/* ============ layout ============ */
+.section{ position:relative; padding:clamp(var(--sp-7),10vw,var(--sp-8)) 0; overflow:hidden; }
+.section--dark{ background:var(--navy); }
+.section--darker{ background:var(--navy-deep); }
+
+
+/* ============ reveal ============ */
+.reveal{ opacity:0; transform:translateY(22px); transition:opacity .8s var(--ease), transform .8s var(--ease); }
+.reveal.in{ opacity:1; transform:none; }
+.reveal-stagger > *{ opacity:0; transform:translateY(18px); transition:opacity .7s var(--ease), transform .7s var(--ease); }
+.reveal-stagger.in > *{ opacity:1; transform:none; }
+.reveal-stagger.in > *:nth-child(1){transition-delay:.02s;}
+.reveal-stagger.in > *:nth-child(2){transition-delay:.09s;}
+.reveal-stagger.in > *:nth-child(3){transition-delay:.16s;}
+.reveal-stagger.in > *:nth-child(4){transition-delay:.23s;}
+.reveal-stagger.in > *:nth-child(5){transition-delay:.30s;}
+
+/* ============ buttons ============ */
+.btn{
+  display:inline-flex; align-items:center; justify-content:center; gap:.6em;
+  font-family:var(--text); font-weight:600; font-size:var(--fs-base);
+  line-height:1.25; min-width:44px; min-height:48px;
+  padding:11px 22px; border-radius:var(--r-btn);
+  border:1.5px solid transparent;
+  cursor:pointer; transition:transform .5s var(--ease-spring-soft), box-shadow .5s var(--ease-spring-soft), border-color .3s ease, background .3s ease;
+  white-space:nowrap;
+}
+.btn--compact{font-size:var(--fs-sm); min-height:44px; padding:8px 16px;}
+.btn-primary{ background:var(--grad-signal); color:#1c1330; }
+.btn-primary:hover{ transform:translateY(-2px); }
+.btn-ghost{ background:rgba(255,255,255,.06); border-color:rgba(255,255,255,.22); color:#fff; }
+.btn-ghost:hover{ border-color:rgba(255,255,255,.4); background:rgba(255,255,255,.1); }
+.btn:active{ transform:scale(.95); }
+.btn-arrow{ transition:transform .35s var(--ease-spring-soft); }
+.btn:hover .btn-arrow{ transform:translateX(3px); }
+
+/* ============ chapter mark ============ */
+.chapter-mark{
+  display:flex; align-items:baseline; gap:.7em; margin-bottom:1.1em;
+  color:var(--pink);
+}
+.chapter-mark .num{ font-family:var(--display); font-weight:700; font-size:var(--fs-sm); letter-spacing:.02em; }
+.chapter-mark .divider{ width:34px; height:1.5px; background:currentColor; opacity:.35; }
+
+/* ============ header ============ */
+.site-header{
+  position:fixed; top:0; left:0; right:0; z-index:100;
+  padding:18px 0;
+  transition:background .5s var(--ease), padding .5s var(--ease), border-color .5s var(--ease), backdrop-filter .5s var(--ease);
+  border-bottom:1px solid transparent;
+}
+.site-header.scrolled{
+  background:rgba(20,24,34,.6);
+  backdrop-filter:blur(20px) saturate(1.6);
+  border-color:rgba(255,255,255,.08);
+  padding:12px 0;
+}
+.header-row{ display:flex; align-items:center; justify-content:space-between; gap:24px; }
+.brand{ display:flex; align-items:center; gap:.6em; }
+.brand .mark{ width:26px; height:22px; }
+.brand-word{ font-family:var(--display); font-weight:800; letter-spacing:-.02em; font-size:var(--fs-md); color:#fff; }
+.brand-word span{ color:var(--pink); }
+nav.primary-nav{ display:flex; align-items:center; gap:clamp(10px,1.6vw,22px); }
+nav.primary-nav a{
+  font-size:var(--fs-xs); font-weight:600; color:rgba(255,255,255,.72);
+  white-space:nowrap;
+  transition:color .3s ease;
+}
+nav.primary-nav a:hover{ color:#fff; }
+.header-cta{ display:flex; align-items:center; gap:14px; }
+.nav-toggle{ display:none; }
+
+/* ============ hero ============ */
+.hero{
+  position:relative;
+  min-height:100svh;
+  display:flex; align-items:center;
+  padding-top:140px; padding-bottom:90px;
+  background:radial-gradient(120% 90% at 78% 8%, #3c4560 0%, var(--navy) 46%, var(--navy-deep) 100%);
+  overflow:hidden;
+}
+.eclipse{ position:absolute; pointer-events:none; }
+.hero .eclipse{
+  right:-14%; top:8%;
+  width:min(62vw,900px); height:min(62vw,900px);
+}
+.contact-section .eclipse{
+  left:50%; top:-22%; transform:translateX(-50%);
+  width:min(50vw,760px); height:min(50vw,760px);
+  opacity:.4;
+}
+.eclipse .c1, .eclipse .c2{
+  position:absolute; border-radius:50%; mix-blend-mode:screen; filter:blur(2px);
+}
+.eclipse .c1{
+  left:0; top:12%; width:70%; height:70%;
+  background:radial-gradient(circle at 38% 35%, var(--pink) 0%, rgba(248,140,255,.55) 42%, rgba(248,140,255,0) 72%);
+  animation:driftA 22s ease-in-out infinite;
+}
+.eclipse .c2{
+  right:0; top:0; width:70%; height:70%;
+  background:radial-gradient(circle at 62% 40%, var(--indigo) 0%, rgba(129,141,255,.55) 42%, rgba(129,141,255,0) 72%);
+  animation:driftB 22s ease-in-out infinite;
+}
+@keyframes driftA{ 0%,100%{ transform:translate(0,0) scale(1);} 50%{ transform:translate(3%,-4%) scale(1.05);} }
+@keyframes driftB{ 0%,100%{ transform:translate(0,0) scale(1);} 50%{ transform:translate(-4%,3%) scale(1.04);} }
+
+.hero-inner{ position:relative; z-index:2; max-width:760px; }
+.hero .eyebrow{ color:var(--pink); margin-bottom:1.4em; }
+.hero h1{
+  font-size:clamp(3.4rem,9vw,6.4rem);
+  color:#fff;
+  display:flex; align-items:center; gap:.05em;
+}
+.hero h1 .mark{ width:.72em; height:.6em; margin-right:.02em; }
+.hero .byline{
+  font-family:var(--text); font-weight:600; font-size:clamp(1.05rem,2vw,1.4rem);
+  color:var(--lav-l); margin-top:.5em; letter-spacing:.01em;
+}
+.hero .byline b{ color:var(--pink); font-weight:600; }
+.hero .headline{
+  font-family:var(--display); font-weight:var(--display-weight); letter-spacing:-.02em;
+  font-size:clamp(1.5rem,3vw,2.1rem);
+  color:#fff; line-height:1.28; margin:.9em 0 .55em; max-width:15.5em;
+}
+.hero .sub{ color:var(--lav-l); font-weight:300; font-size:clamp(1.0625rem,1.4vw,1.15rem); max-width:34em; margin-bottom:1.1em; }
+.hero .sub b{ color:#fff; font-weight:700; }
+.hero .note{ color:var(--lav-l); font-weight:400; font-size:var(--fs-base); max-width:36em; line-height:1.6; opacity:.8; margin-bottom:2.1em; }
+.hero .cta-row{ display:flex; flex-wrap:wrap; gap:var(--sp-2); margin-bottom:2.8em; }
+
+/* ============ Interactive Smart TV Simulation Widget ============ */
+.hero-tv-col{
+  position:relative;
+  z-index:2;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+}
+.hero-tv-wrap{
+  position:relative;
+  width:100%;
+  max-width:670px;
+}
+
+/* Floating Pills */
+.tv-pill{
+  position:absolute;
+  min-width:44px;
+  min-height:44px;
+  z-index:10;
+  display:inline-flex;
+  align-items:center;
+  gap:8px;
+  background:#ffffff;
+  color:var(--navy-deepest);
+  border:none;
+  border-radius:var(--r-btn);
+  padding:9px 18px;
+  font-family:var(--text);
+  font-size:clamp(12px, 1.1vw, 13.5px);
+  font-weight:700;
+  letter-spacing:.02em;
+  cursor:pointer;
+  transition:transform .3s var(--ease-spring-soft), opacity .3s ease, box-shadow .3s ease;
+  user-select:none;
+}
+.tv-pill-dot{
+  width:8px; height:8px; border-radius:50%; display:inline-block;
+  transition:transform .3s ease;
+}
+.tv-pill--os{
+  top:-28px; left:-12px;
+  animation:pillFloatA 6s ease-in-out infinite alternate;
+}
+.tv-pill--os .tv-pill-dot{ background:#9b51e0; }
+
+.tv-pill--ott{
+  bottom:140px; right:-26px;
+  animation:pillFloatB 7s ease-in-out infinite alternate;
+}
+.tv-pill--ott .tv-pill-dot{ background:var(--pink); }
+
+.tv-pill:hover{
+  animation-play-state:paused;
+  transform:scale(1.06);
+}
+.tv-pill:active{
+  transform:scale(.98);
+}
+.tv-pill.is-active{
+  opacity:1;
+}
+.tv-pill:not(.is-active){
+  opacity:.65;
+}
+
+@keyframes pillFloatA{
+  0%{ translate:0 0; }
+  100%{ translate:0 -8px; }
+}
+@keyframes pillFloatB{
+  0%{ translate:0 0; }
+  100%{ translate:0 8px; }
+}
+
+/* TV Frame Container */
+.hero-tv-frame{
+  position:relative;
+  background:rgba(26, 32, 48, 0.75);
+  border:1.5px solid rgba(255, 255, 255, 0.18);
+  border-radius:var(--r-card);
+  padding:clamp(16px, 2.5vw, 22px) clamp(16px, 2.5vw, 22px) clamp(14px, 2vw, 18px);
+  box-shadow:var(--shadow-product);
+  overflow:hidden;
+}
+
+/* TV Topbar */
+.tv-topbar{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  padding:2px 8px clamp(10px, 1.5vw, 14px);
+}
+.tv-topbar-switches{
+  display:inline-flex;
+  align-items:center;
+  gap:8px;
+}
+.tv-switch-pill{
+  height:44px;
+  width:44px;
+  display:flex;
+  align-items:center;
+  border-radius:var(--r-sm);
+  border:none;
+  background:transparent;
+  color:rgba(255,255,255,.2);
+  cursor:pointer;
+  padding:0;
+  transition:width .3s ease, color .3s ease;
+  user-select:none;
+}
+.tv-switch-pill::before{
+  content:""; display:block; width:100%; height:5px; border-radius:var(--r-btn);
+  background:currentColor;
+  transition:box-shadow .3s ease;
+}
+.tv-switch-pill:hover{
+  color:rgba(255,255,255,.45);
+}
+.tv-switch-pill.is-active[data-switch="os"]{
+  color:#b678f5;
+  width:48px;
+}
+.tv-switch-pill.is-active[data-switch="ott"]{
+  color:var(--pink);
+  width:48px;
+}
+.tv-topbar-right .tv-topbar-pill--sm{
+  display:block;
+  height:5px; width:22px; border-radius:var(--r-btn);
+  background:rgba(255,255,255,.16);
+}
+
+/* TV Screen Display (Main Hero Banner Area) */
+.tv-display{
+  position:relative;
+  width:100%;
+  aspect-ratio:16/9.2;
+  border-radius:var(--r-sm);
+  overflow:hidden;
+  background:#0e121a;
+  outline:1px solid rgba(255,255,255,.08);
+  outline-offset:-1px;
+}
+
+.tv-slide{
+  position:absolute;
+  inset:0;
+  opacity:0;
+  visibility:hidden;
+  transition:opacity .65s ease, transform .65s ease, visibility .65s;
+  transform:scale(1.02);
+}
+.tv-slide.is-active{
+  opacity:1;
+  visibility:visible;
+  transform:scale(1);
+  z-index:2;
+}
+.tv-slide-img{
+  width:100%; height:100%; object-fit:cover; display:block;
+}
+.tv-slide[data-level="ott"] .tv-slide-img,
+#tv-slide-os-xiaomi .tv-slide-img{object-fit:contain;}
+.tv-slide[data-level="ott"] .tv-slide-overlay{background:none;}
+.tv-slide-overlay{
+  position:absolute;
+  inset:0;
+  background:linear-gradient(180deg, rgba(14,18,26,.05) 45%, rgba(14,18,26,.88) 100%);
+  pointer-events:none;
+}
+.tv-slide-badge{
+  position:absolute;
+  left:clamp(12px, 2vw, 18px); bottom:clamp(10px, 1.8vw, 16px);
+  z-index:3;
+  display:flex;
+  flex-direction:column;
+  gap:3px;
+  background:rgba(18, 22, 34, 0.84);
+  border:1px solid rgba(255,255,255,.14);
+  padding:clamp(6px, 1vw, 9px) clamp(12px, 1.6vw, 18px);
+  border-radius:var(--r-sm);
+  max-width:calc(100% - 32px);
+}
+.tv-slide-vendor{
+  font-family:var(--display);
+  font-size:clamp(12px, 1.2vw, 14.5px);
+  font-weight:700;
+  color:#ffffff;
+  letter-spacing:.02em;
+}
+.tv-slide-sub{
+  font-size:clamp(11px, 1vw, 12.5px);
+  color:var(--lav-l);
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+}
+
+/* TV App Launcher Row (3 uniform tiles for OTT, highlighted together on OTT) */
+.tv-app-row{
+  display:grid;
+  grid-template-columns:repeat(3, 1fr);
+  gap:clamp(8px, 1.2vw, 12px);
+  margin-top:clamp(12px, 1.6vw, 16px);
+  transition:all .35s ease;
+}
+.tv-app-tile{
+  min-height:44px;
+  background:rgba(255,255,255,.06);
+  border:1px solid rgba(255,255,255,.1);
+  border-radius:var(--r-sm);
+  padding:clamp(9px, 1.2vw, 12px) 10px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  color:var(--lav-l);
+  font-size:clamp(12px, 1.1vw, 13.5px);
+  font-weight:600;
+  letter-spacing:.01em;
+  cursor:pointer;
+  transition:all .35s var(--ease-spring-soft);
+  user-select:none;
+}
+.tv-app-tile:hover{
+  background:rgba(255,255,255,.14);
+  border-color:rgba(255,255,255,.25);
+  color:#fff;
+  transform:translateY(-1px);
+}
+/* When switched to OTT, ALL 3 tiles are highlighted simultaneously */
+.tv-app-row.is-active .tv-app-tile{
+  background:linear-gradient(135deg, rgba(248,140,255,.24), rgba(129,141,255,.2));
+  border-color:rgba(248,140,255,.8);
+  color:#ffffff;
+  font-weight:700;
+  transform:translateY(-2px);
+}
+
+/* Segmented dots / timeline */
+.tv-nav-dots{
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:7px;
+  margin-top:clamp(12px, 1.6vw, 16px);
+}
+.tv-dot{
+  height:4px;
+  width:22px;
+  border-radius:2px;
+  border:none;
+  background:rgba(255,255,255,.2);
+  cursor:pointer;
+  padding:0;
+  transition:width .3s ease, background .3s ease;
+}
+.tv-dot.is-active{
+  background:var(--pink);
+  width:36px;
+}
+
+
+@media (max-width:540px){
+  .tv-pill{ font-size:11px; padding:6px 12px; }
+  .tv-pill--os{ top:-28px; left:8px; }
+  .tv-pill--ott{ bottom:128px; right:8px; }
+  .tv-slide-sub{ display:none; }
+}
+@media (max-width:360px){
+  .tv-app-row{grid-template-columns:minmax(0,1.15fr) minmax(0,1.1fr) minmax(0,.75fr); gap:4px;}
+  .tv-app-tile{min-width:0; padding-inline:4px;}
+  .tv-pill--ott{bottom:144px;}
+}
+
+/* ============ stat rail (01) ============ */
+.stat-rail{ display:grid; grid-template-columns:repeat(3,1fr); gap:var(--sp-5); margin-bottom:clamp(44px,6vw,68px); }
+.stat-card{
+  background:var(--lav-xl); border-radius:var(--r-card); padding:var(--sp-5);
+  border:1px solid rgba(50,59,79,.09);
+}
+.stat-card .num{ font-family:var(--display); font-weight:800; letter-spacing:-.02em; font-size:clamp(1.6rem,2.6vw,2.1rem); color:var(--navy); display:block; margin-bottom:.32em; }
+.stat-card .cap{ font-size:var(--fs-sm); color:var(--slate); line-height:1.5; }
+
+.source-line{ font-size:var(--fs-2xs); color:var(--lav-l); opacity:.7; margin-top:2.4em; }
+
+/* ============ use cases (02A) ============ */
+.uc-grid{ display:grid; grid-template-columns:1fr 1fr; gap:var(--sp-5); }
+.uc-grid--3{ grid-template-columns:repeat(3,1fr); }
+.uc-card{ background:var(--lav-xl); border:1px solid rgba(50,59,79,.09); border-radius:var(--r-card); padding:var(--sp-5); display:flex; gap:1.4em; }
+.uc-num{
+  flex:none; width:52px; height:52px; border-radius:50%;
+  background:var(--navy); color:#fff; display:flex; align-items:center; justify-content:center;
+  font-family:var(--display); font-weight:700; font-size:var(--fs-base);
+}
+.uc-card h4{ font-family:var(--text); font-weight:700; font-size:var(--fs-md); line-height:1.25; color:var(--navy); margin-bottom:.3em; }
+.uc-card .metric{ font-family:var(--display); font-weight:700; letter-spacing:-.02em; font-size:var(--fs-base); color:var(--navy); margin-bottom:.55em; display:block; }
+.uc-card p{ font-size:var(--fs-base); color:var(--slate); line-height:1.55; }
+
+/* ============ formats (03) ============ */
+.fmt-grid{ display:grid; grid-template-columns:1fr 1fr; gap:var(--sp-5); }
+.fmt-card{
+  background:var(--paper); border:1px solid rgba(50,59,79,.09); border-radius:var(--r-lg); padding:var(--sp-5); min-width:0;
+  display:flex; flex-direction:column; gap:1.4em; cursor:pointer;
+  transition:transform .5s var(--ease-spring-soft), border-color .3s ease;
+}
+.fmt-card:hover, .fmt-card:focus-visible{
+  transform:translateY(-6px);
+  border-color:rgba(129,141,255,.35);
+}
+.fmt-card:hover .device-frame, .fmt-card:focus-visible .device-frame{ transform:scale(1.015); }
+.fmt-card:active{ transform:scale(.98); }
+.fmt-head h3{ font-family:var(--display); font-weight:700; font-size:var(--fs-xl); line-height:1.2; color:var(--navy); }
+.fmt-head .sub{ font-size:var(--fs-sm); color:var(--violet); font-weight:600; margin-top:.4em; }
+.fmt-open-hint{
+  display:inline-flex; align-items:center; gap:.5em; align-self:flex-start;
+  font-size:var(--fs-sm); font-weight:700; color:var(--indigo);
+}
+.fmt-open-hint svg{ transition:transform .35s var(--ease-spring-soft); }
+.fmt-card:hover .fmt-open-hint svg, .fmt-card:focus-visible .fmt-open-hint svg{ transform:translateX(3px); }
+
+.device-frame{
+  border-radius:var(--r-md); background:var(--navy); padding:10px;
+  box-shadow:var(--shadow-product);
+  transition:transform .5s var(--ease-spring-soft);
+}
+.device-frame .screen{
+  aspect-ratio:16/9; border-radius:8px; position:relative; overflow:hidden;
+  background:
+    radial-gradient(120% 140% at 15% 0%, rgba(248,140,255,.5), transparent 55%),
+    radial-gradient(120% 140% at 100% 100%, rgba(129,141,255,.55), transparent 55%),
+    var(--navy-deep);
+  display:flex; align-items:center; justify-content:center;
+}
+.device-frame .screen .ph{
+  display:flex; flex-direction:column; align-items:center; gap:.6em;
+  color:rgba(255,255,255,.55); text-align:center; padding:1em;
+}
+.device-frame .screen .ph svg{ width:34px; height:34px; opacity:.8; }
+.device-frame .screen .ph span{ font-size:var(--fs-2xs); letter-spacing:.06em; text-transform:uppercase; font-weight:600; }
+/* placeholder — user will later swap this .screen fill for a real <img> of the actual UI */
+
+.fmt-desc{ font-size:var(--fs-base); color:var(--slate); line-height:1.55; margin-top:-.4em; }
+.fmt-list{ display:flex; flex-wrap:wrap; gap:8px; }
+.fmt-list li{ font-size:var(--fs-2xs); color:var(--navy); background:var(--lav-xl); border-radius:999px; padding:.5em 1em; }
+.fmt-group-label{ display:block; font-size:var(--fs-2xs); font-weight:700; letter-spacing:.08em; text-transform:uppercase; color:var(--violet); margin-bottom:.6em; }
+.fmt-partners{ display:flex; flex-direction:column; gap:1.2em; }
+.fmt-logos{ display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); align-items:center; gap:12px; }
+.fmt-logo{ width:100%; height:36px; max-width:100px; justify-self:center; object-fit:contain; }
+.fmt-groups{ display:flex; flex-wrap:wrap; gap:1.6em; }
+.fmt-group{ flex:1 1 160px; }
+.fmt-group .fmt-list{ margin-top:0; }
+.fmt-meta{ font-size:var(--fs-base); color:var(--slate); line-height:1.5; }
+.fmt-meta b{ color:var(--navy); }
+.fmt-benefit{ font-size:var(--fs-base); color:var(--slate); line-height:1.5; }
+.fmt-benefit b{ color:var(--navy); }
+.fmt-note{ font-size:var(--fs-sm); color:var(--slate); font-style:italic; line-height:1.5; }
+.fmt-cap{ margin-top:auto; background:var(--navy); color:#fff; border-radius:var(--r-sm); padding:1em 1.2em; font-size:var(--fs-base); font-weight:600; }
+
+/* ============ TV overlay (formats zoom) ============ */
+.tv-overlay{ position:fixed; inset:0; z-index:200; visibility:hidden; pointer-events:none; }
+.tv-overlay.open{ visibility:visible; pointer-events:auto; }
+.tv-overlay-backdrop{
+  position:absolute; inset:0; background:rgba(10,12,18,.7);
+  opacity:0; transition:opacity .6s var(--ease-spring-soft);
+}
+.tv-overlay.open .tv-overlay-backdrop{ opacity:1; }
+.tv-overlay-screen{
+  position:fixed; background:var(--navy-deepest); border:1px solid var(--glass-border); border-radius:var(--r-card);
+  overflow:hidden;
+}
+/* Keep dialog scrolling on its inner layer while the outer panel animates. */
+.tv-overlay-scroll{
+  position:absolute; inset:0; overflow-y:auto; overscroll-behavior:contain;
+  padding:clamp(24px,4vw,44px) clamp(24px,4vw,52px) clamp(60px,8vw,100px);
+  -webkit-overflow-scrolling:touch;
+}
+.tv-overlay-close{
+  position:absolute; top:18px; right:18px; width:44px; height:44px; border-radius:50%;
+  border:1px solid rgba(255,255,255,.25); background:rgba(20,24,36,.75); color:#fff;
+  font-size:1.3rem; line-height:1; cursor:pointer; transition:border-color .25s ease, color .25s ease, transform .3s var(--ease-spring-soft), background .25s ease;
+  z-index:30; display:flex; align-items:center; justify-content:center;
+}
+.tv-overlay-close:hover{ border-color:var(--pink); color:var(--pink); background:rgba(248,140,255,.18); }
+.tv-overlay-close:active{ transform:scale(.9); }
+.tv-overlay-head, .tv-overlay-grid{ opacity:0; transition:opacity .4s var(--ease-spring-soft); }
+.tv-overlay-screen.content-in .tv-overlay-head, .tv-overlay-screen.content-in .tv-overlay-grid{ opacity:1; }
+.tv-overlay-close{
+  position:absolute; top:18px; right:18px; width:44px; height:44px; border-radius:50%;
+  border:1px solid rgba(255,255,255,.2); background:rgba(255,255,255,.05); color:#fff;
+  font-size:1.3rem; line-height:1; cursor:pointer; transition:border-color .25s ease, color .25s ease, transform .3s var(--ease-spring-soft);
+  z-index:1;
+}
+.tv-overlay-close:hover{ border-color:var(--pink); color:var(--pink); }
+.tv-overlay-close:active{ transform:scale(.9); }
+.tv-overlay-eyebrow{
+  display:block; font-family:var(--text); font-weight:700; font-size:var(--fs-2xs);
+  letter-spacing:.14em; text-transform:uppercase; color:var(--pink); margin-bottom:.6em;
+}
+.tv-overlay-head h3{ font-family:var(--display); font-weight:var(--display-weight); font-size:clamp(1.4rem,2.6vw,2rem); color:#fff; max-width:20em; }
+@media (max-width:360px){ .tv-overlay-head h3{ font-size:1.2rem; } }
+.tv-overlay-grid{
+  display:grid; grid-template-columns:repeat(auto-fill, minmax(220px,1fr)); gap:16px;
+  margin-top:1.8em;
+}
+.tv-format-tile{ display:flex; flex-direction:column; gap:.7em; }
+.tv-format-tile .shot{
+  aspect-ratio:16/9; border-radius:var(--r-sm); position:relative; overflow:hidden;
+  background:
+    radial-gradient(120% 140% at 15% 0%, rgba(248,140,255,.45), transparent 55%),
+    radial-gradient(120% 140% at 100% 100%, rgba(129,141,255,.5), transparent 55%),
+    var(--navy);
+  display:flex; align-items:center; justify-content:center;
+}
+.tv-format-tile .shot img, .tv-format-tile-img{
+  width:100%; height:100%; object-fit:cover; display:block;
+  transition:transform .4s var(--ease-spring-soft);
+}
+.tv-format-tile:hover .shot img, .tv-format-tile:hover .tv-format-tile-img{
+  transform:scale(1.03);
+}
+.tv-format-tile .shot span{
+  font-size:var(--fs-2xs); letter-spacing:.05em; text-transform:uppercase; font-weight:600;
+  color:rgba(255,255,255,.55); text-align:center; padding:0 1em;
+}
+.tv-format-tile .label{ font-size:var(--fs-base); font-weight:700; color:#fff; }
+.tv-format-tile-desc{ font-size:var(--fs-base); color:var(--lav-l); line-height:1.5; margin:0; }
+
+.tv-overlay-grid.is-doc{ display:flex; flex-direction:column; gap:clamp(28px,4vw,44px); }
+.tv-vendor{ display:flex; flex-direction:column; gap:1.1em; }
+.tv-vendor + .tv-vendor{ padding-top:clamp(28px,4vw,44px); border-top:1px solid rgba(255,255,255,.1); }
+.tv-vendor-head{ display:flex; gap:1.1em; align-items:flex-start; }
+.tv-vendor-logo-chip{
+  flex:none; width:76px; height:48px; border-radius:var(--r-sm); background:#fff;
+  display:flex; align-items:center; justify-content:center; padding:8px;
+}
+.tv-vendor-logo-chip img{ max-width:100%; max-height:100%; object-fit:contain; }
+.tv-vendor-intro{ font-size:var(--fs-base); color:var(--lav-l); line-height:1.5; padding-top:.3em; }
+.tv-vendor-intro b{ color:#fff; }
+.tv-format-list{ display:flex; flex-direction:column; gap:10px; }
+.tv-format-row{ background:rgba(255,255,255,.04); border:1px solid rgba(255,255,255,.08); border-radius:var(--r-md); overflow:hidden; transition:border-color .3s ease; }
+.tv-format-row.is-open{ border-color:rgba(255,255,255,.16); }
+.tv-format-toggle{
+  display:flex; align-items:center; justify-content:space-between; gap:1em; width:100%;
+  background:none; border:none; padding:1.1em 1.4em; margin:0; cursor:pointer; text-align:left;
+  color:inherit; font:inherit;
+}
+.tv-format-toggle h4{ font-family:var(--display); font-weight:700; font-size:var(--fs-base); line-height:1.3; color:#fff; }
+.tv-format-chevron{ flex:none; color:var(--lav-l); transition:transform .4s var(--ease-spring-soft); }
+.tv-format-row.is-open .tv-format-chevron{ transform:rotate(180deg); color:#fff; }
+.tv-format-body{ display:grid; grid-template-rows:0fr; transition:grid-template-rows .45s var(--ease-spring-soft); }
+.tv-format-row.is-open .tv-format-body{ grid-template-rows:1fr; }
+.tv-format-body-inner{ overflow:hidden; }
+.tv-format-desc{ font-size:var(--fs-base); color:var(--lav-l); line-height:1.5; padding:0 1.4em; margin-bottom:1em; }
+.tv-format-shot{ margin:0 1.4em 1.2em; border-radius:var(--r-sm); overflow:hidden; aspect-ratio:16/9; }
+.tv-format-shot-img{ width:100%; height:100%; object-fit:cover; display:block; }
+.tv-format-shot-img[src="assets/onctv-apps-start.jpg"],
+.tv-format-shot-img[src="assets/xiaomi-patchwall-homepage.png"]{object-fit:contain;}
+.tv-format-shot-ph{
+  width:100%; height:100%; display:flex; align-items:center; justify-content:center;
+  background:
+    radial-gradient(120% 140% at 15% 0%, rgba(248,140,255,.35), transparent 55%),
+    radial-gradient(120% 140% at 100% 100%, rgba(129,141,255,.4), transparent 55%),
+    var(--navy);
+}
+.tv-format-shot-ph span{ font-size:var(--fs-2xs); letter-spacing:.05em; text-transform:uppercase; font-weight:600; color:rgba(255,255,255,.55); text-align:center; padding:0 1em; }
+.tv-format-meta{ display:grid; grid-template-columns:repeat(3,1fr); gap:16px; padding:0 1.4em 1.3em; }
+.tv-format-meta div{ display:flex; flex-direction:column; gap:.35em; }
+.tv-format-meta span{ font-size:var(--fs-2xs); font-weight:700; letter-spacing:.06em; text-transform:uppercase; color:var(--violet); }
+.tv-format-meta b{ font-size:var(--fs-xs); font-weight:600; color:var(--lav-l); line-height:1.4; }
+.tv-format-click-list{ margin:0; padding:0; list-style:none; display:flex; flex-direction:column; gap:.3em; }
+.tv-format-click-list li{ font-size:var(--fs-xs); color:var(--lav-l); line-height:1.4; padding-left:.85em; position:relative; }
+.tv-format-click-list li::before{ content:"–"; position:absolute; left:0; color:var(--violet); }
+
+/* ============ channels (05) ============ */
+.ch-grid{ display:grid; grid-template-columns:1fr 1fr 1fr; gap:var(--sp-5); margin-bottom:22px; }
+.ch-card{ border-radius:var(--r-card); padding:2em; display:flex; flex-direction:column; gap:1.2em; }
+.ch-card.l1{ background:var(--lav-xl); border:1px solid rgba(50,59,79,.09); }
+.ch-card.l2{ background:var(--lav-xl); border:1px solid rgba(50,59,79,.09); }
+.ch-card.l3{ background:var(--navy-deepest); border:1px solid rgba(255,255,255,.1); }
+.ch-num{ display:flex; align-items:center; gap:.8em; }
+.ch-num .dot{ width:36px; height:36px; border-radius:50%; background:var(--navy); color:#fff; display:flex; align-items:center; justify-content:center; font-family:var(--display); font-weight:700; font-size:var(--fs-sm); flex:none; }
+.ch-card.l3 .dot{ background:var(--pink); color:var(--navy-deepest); }
+.ch-num h4{ font-family:var(--text); font-weight:700; font-size:var(--fs-md); color:var(--navy); }
+.ch-card.l3 h4{ color:#fff; }
+.ch-card p{ font-size:var(--fs-base); line-height:1.55; color:var(--slate); }
+.ch-card.l3 p{ color:var(--lav-l); }
+.ch-pill-row{ display:flex; gap:8px; flex-wrap:wrap; }
+.ch-pill{ font-size:var(--fs-2xs); padding:.5em .9em; border-radius:999px; background:var(--paper); color:var(--navy); }
+.ch-pill.on{ background:var(--pink); color:var(--navy-deepest); font-weight:700; }
+.ch-highlight{ margin-top:auto; background:var(--navy); color:#fff; border-radius:var(--r-sm); padding:.85em 1em; font-size:var(--fs-sm); font-weight:600; }
+.ch-card.l3 .ch-highlight{ background:rgba(255,255,255,.08); }
+.ch-foot{ display:grid; grid-template-columns:.7fr 1.3fr; gap:18px; }
+.ch-foot .stat-card{ display:flex; flex-direction:column; justify-content:center; }
+.ch-foot .stat-card .num{ font-size:clamp(2.2rem,4vw,3rem); }
+.ch-foot .note-card{ background:var(--paper); border:1px solid rgba(50,59,79,.09); border-radius:var(--r-card); padding:var(--sp-5); display:flex; flex-direction:column; justify-content:center; }
+.ch-foot .note-card h5{ font-family:var(--text); font-weight:700; color:var(--navy); font-size:var(--fs-base); margin-bottom:.5em; }
+.ch-foot .note-card p{ font-size:var(--fs-sm); color:var(--slate); line-height:1.55; }
+
+/* ============ benefit (06) ============ */
+.benefit-layout{ display:grid; grid-template-columns:1.05fr .95fr; gap:clamp(30px,5vw,60px); align-items:start; }
+.benefit-cpm{ font-family:var(--display); font-weight:900; letter-spacing:-.02em; font-size:clamp(2.1rem,4.4vw,3.2rem); background:var(--grad-signal); -webkit-background-clip:text; background-clip:text; color:transparent; line-height:1.05; margin-bottom:.4em; }
+.benefit-cpm-tag{ color:var(--lav-l); font-weight:400; font-size:var(--fs-base); line-height:1.6; max-width:32em; margin-bottom:1.8em; }
+.benefit-list{ display:flex; flex-direction:column; gap:1.1em; }
+.benefit-list li{ display:flex; gap:.9em; align-items:flex-start; color:var(--lav-l); font-weight:400; font-size:var(--fs-md); line-height:1.55; }
+.benefit-list .b-mark{ flex:none; width:16px; height:14px; margin-top:.3em; color:var(--pink); }
+.clients-panel{ background:var(--navy-deepest); border:1px solid rgba(255,255,255,.08); border-radius:var(--r-lg); padding:2.2em; display:flex; flex-direction:column; justify-content:center; min-height:100%; }
+.clients-panel h5{ color:#fff; font-family:var(--text); font-weight:700; font-size:var(--fs-base); margin-bottom:1.6em; }
+.clients-marquee{ overflow:hidden; -webkit-mask-image:linear-gradient(90deg, transparent, #000 10%, #000 90%, transparent); mask-image:linear-gradient(90deg, transparent, #000 10%, #000 90%, transparent); }
+.clients-track{ display:flex; align-items:center; gap:clamp(28px,4vw,48px); width:max-content; --clients-gap:clamp(28px,4vw,48px); gap:var(--clients-gap); padding-inline-end:var(--clients-gap); animation:clientsMarquee var(--clients-duration,300s) linear infinite; }
+.clients-track li{
+  font-family:var(--display); font-weight:700; letter-spacing:-.02em; font-size:var(--fs-lg); color:var(--lav-l);
+  white-space:nowrap; flex:none;
+}
+.clients-track:hover{ animation-play-state:paused; }
+@keyframes clientsMarquee{ from{ transform:translateX(0); } to{ transform:translateX(-50%); } }
+
+
+/* ============ advantages strip + trust ============ */
+.adv-section{ padding:clamp(var(--sp-7),7vw,var(--sp-8)) 0 clamp(36px,5vw,56px); }
+.adv-strip{
+  display:grid; grid-template-columns:repeat(4,1fr);
+  border:1px solid rgba(255,255,255,.12); border-radius:var(--r-lg);
+  background:linear-gradient(135deg, rgba(129,141,255,.16), rgba(248,140,255,.07));
+  overflow:hidden;
+}
+.adv-item{ padding:clamp(22px,3vw,34px) clamp(20px,2.4vw,30px); border-left:1px solid rgba(255,255,255,.1); min-width:0; }
+.adv-item:first-child{ border-left:none; }
+.adv-num{ display:block; font-family:var(--display); font-weight:800; letter-spacing:-.02em; font-variant-numeric:tabular-nums; font-size:clamp(1.7rem,2.9vw,2.5rem); line-height:1.05; color:#fff; white-space:nowrap; }
+.adv-num sup{ font-size:.5em; color:var(--pink); vertical-align:top; position:relative; top:.1em; margin-left:.08em; }
+.adv-cap{ display:block; margin-top:.7em; font-size:var(--fs-sm); color:var(--lav-l); line-height:1.5; }
+.trust{ margin-top:clamp(28px,4vw,44px); display:flex; align-items:center; gap:clamp(20px,3vw,40px); }
+.trust h5{ flex:none; margin:0; font-family:var(--text); font-weight:700; font-size:var(--fs-sm); letter-spacing:.1em; text-transform:uppercase; color:var(--lav-l); opacity:.8; }
+.trust .clients-marquee{ flex:1; min-width:0; }
+
+/* ============ why onCTV (01) ============ */
+.why-sub{ font-family:var(--display); font-weight:700; font-size:clamp(1.3rem,2.4vw,1.8rem); color:#F6F7FC; margin:clamp(40px,6vw,64px) 0 clamp(20px,3vw,32px); max-width:20em; line-height:1.15; }
+.why-sub:first-of-type{ margin-top:0; }
+.stat-rail--2{ grid-template-columns:repeat(2,1fr); }
+.stat-rail--2 .stat-card .num{ font-size:clamp(1.5rem,2.4vw,1.9rem); }
+.stat-rail--2 .stat-card .cap b{ color:var(--navy); }
+.why-quote{ font-size:var(--fs-md); color:#fff; line-height:1.55; max-width:44em; padding-left:1.2em; border-left:2px solid var(--pink); margin-bottom:clamp(28px,4vw,40px); }
+
+/* ============ journey (05) ============ */
+.journey{ display:grid; grid-template-columns:repeat(4,1fr); gap:var(--sp-4); position:relative; }
+.journey::before{ content:""; position:absolute; left:6%; right:6%; top:44px; height:2px; background:linear-gradient(90deg,var(--pink),var(--indigo)); opacity:.45; z-index:0; }
+.step{ position:relative; z-index:1; background:var(--lav-xl); border:1px solid rgba(50,59,79,.09); border-radius:var(--r-card); padding:var(--sp-5); display:flex; flex-direction:column; gap:1em; min-width:0; }
+.step-moment{ display:flex; align-items:center; gap:.7em; font-size:var(--fs-2xs); font-weight:700; letter-spacing:.1em; text-transform:uppercase; color:var(--violet); }
+.step-moment b{ width:30px; height:30px; flex:none; border-radius:50%; background:var(--navy); color:#fff; display:flex; align-items:center; justify-content:center; font-family:var(--display); font-size:var(--fs-xs); letter-spacing:0; }
+.step h3{ font-family:var(--display); font-weight:700; font-size:var(--fs-md); line-height:1.2; color:var(--navy); min-height:3.6em; }
+.step dl{ margin:0; display:flex; flex-direction:column; gap:.9em; padding-top:1em; border-top:1px solid rgba(50,59,79,.14); }
+.step dt{ font-size:var(--fs-2xs); font-weight:700; letter-spacing:.08em; text-transform:uppercase; color:var(--violet); margin-bottom:.2em; }
+.step dd{ margin:0; font-size:var(--fs-sm); color:var(--slate); line-height:1.45; }
+.perf{ margin-top:var(--sp-5); display:flex; align-items:center; gap:clamp(16px,3vw,32px); flex-wrap:wrap; background:var(--navy-deepest); border:1px solid rgba(255,255,255,.1); border-radius:var(--r-lg); padding:var(--sp-5) clamp(22px,3vw,36px); }
+.perf b{ font-family:var(--display); font-weight:700; font-size:var(--fs-md); color:#fff; flex:none; }
+.perf p{ flex:1 1 280px; font-size:var(--fs-base); color:var(--lav-l); line-height:1.55; }
+
+/* ============ measure (06) ============ */
+.measure{ display:grid; grid-template-columns:1.15fr .85fr; gap:var(--sp-5); align-items:stretch; }
+.mlist{ background:var(--lav-xl); border-radius:var(--r-lg); padding:clamp(8px,1.4vw,16px) clamp(22px,3vw,36px); }
+.mrow{ display:grid; grid-template-columns:minmax(0,.8fr) minmax(0,1.2fr); gap:var(--sp-5); padding:1.4em 0; border-bottom:1px solid rgba(50,59,79,.14); align-items:start; }
+.mrow:last-child{ border-bottom:none; }
+.mrow h4{ font-family:var(--display); font-weight:700; font-size:var(--fs-base); color:var(--navy); line-height:1.2; }
+.mrow h4 small{ display:block; font-family:var(--text); font-weight:600; font-size:var(--fs-xs); color:var(--indigo); margin-top:.5em; letter-spacing:0; }
+.mrow p{ font-size:var(--fs-base); color:var(--slate); line-height:1.5; }
+.mrow p em{ display:block; font-style:normal; font-size:var(--fs-xs); color:var(--violet); margin-top:.5em; }
+.quality {
+  position: relative;
+  overflow: hidden;
+  background: linear-gradient(145deg, rgba(129, 141, 255, .14), rgba(248, 140, 255, .06)), rgba(255, 255, 255, .06);
+  border: 1px solid rgba(255, 255, 255, .14);
+  border-radius: var(--r-lg);
+  padding: clamp(24px, 3vw, 36px);
+}
+.quality .eyebrow{ margin-bottom:1em; }
+.quality h3{ font-family:var(--display); font-weight:var(--display-weight); font-size:clamp(1.25rem,2.1vw,1.6rem); line-height:1.2; color:#fff; margin-bottom:1.4em; }
+.quality ul{ display:flex; flex-direction:column; gap:1.2em; }
+.quality li{ display:flex; gap:.9em; align-items:flex-start; font-size:var(--fs-base); color:var(--lav-l); line-height:1.5; }
+.quality li svg{ flex:none; width:22px; height:22px; margin-top:.15em; color:var(--pink); }
+.quality li b{ color:#fff; }
+
+/* ============ case (07) ============ */
+.case-grid{ display:grid; grid-template-columns:1fr 1fr; gap:var(--sp-4); }
+.case-nums{ display:grid; grid-template-columns:1fr 1fr; gap:var(--sp-4); }
+.cn{ background:rgba(255,255,255,.06); border:1px solid rgba(255,255,255,.12); border-radius:var(--r-card); padding:var(--sp-5); display:flex; flex-direction:column; gap:.6em; min-width:0; }
+.cn b{ font-family:var(--display); font-weight:800; letter-spacing:-.02em; font-size:clamp(2rem,4vw,3.1rem); line-height:1; color:#fff; font-variant-numeric:tabular-nums; }
+.cn b small{ font-size:.42em; color:var(--pink); margin-left:.25em; letter-spacing:0; }
+.cn span{ font-size:var(--fs-sm); color:var(--lav-l); line-height:1.5; }
+.case-story{ background:var(--paper); border-radius:var(--r-lg); padding:clamp(24px,3vw,36px); display:flex; flex-direction:column; gap:1.1em; min-width:0; }
+.case-who{ display:flex; align-items:center; gap:.8em; font-family:var(--display); font-weight:800; font-size:var(--fs-xl); color:var(--navy); letter-spacing:-.02em; }
+.case-who span{ font-family:var(--text); font-weight:700; font-size:var(--fs-2xs); letter-spacing:.1em; text-transform:uppercase; color:var(--indigo); background:var(--lav-xl); padding:.4em .9em; border-radius:999px; }
+.case-story p{ font-size:var(--fs-base); color:var(--slate); line-height:1.55; }
+.case-story p b{ color:var(--navy); }
+.cum{ margin-top:auto; padding-top:1.2em; border-top:1px solid rgba(50,59,79,.12); }
+.cum-lbl{ font-size:var(--fs-xs); font-weight:700; color:var(--navy); margin-bottom:1em; }
+.cum-bars{ display:grid; grid-template-columns:repeat(3,1fr); gap:12px; align-items:end; height:130px; }
+.cum-col{ display:flex; flex-direction:column; justify-content:flex-end; height:100%; gap:.5em; }
+.cum-col i{ display:block; border-radius:8px 8px 3px 3px; background:var(--grad-signal); height:var(--h); transform:scaleY(0); transform-origin:bottom; transition:transform 1s var(--ease); }
+.in .cum-col i{ transform:scaleY(1); }
+.cum-col b{ font-family:var(--display); font-weight:800; font-size:var(--fs-base); color:var(--navy); letter-spacing:-.02em; }
+.cum-axis{ display:grid; grid-template-columns:repeat(3,1fr); gap:12px; margin-top:.7em; font-size:var(--fs-xs); color:var(--slate); }
+.case-src{ font-size:var(--fs-2xs); color:var(--slate); opacity:.75; }
+
+/* ============ contact ============ */
+.contact-section{ background:radial-gradient(120% 100% at 80% 0%, #3c4560, var(--navy-deep) 60%, var(--navy-deepest) 100%); }
+.contact-section .eclipse{ right:-18%; top:-30%; width:min(55vw,820px); height:min(55vw,820px); opacity:.35; }
+.contact-grid{ display:grid; grid-template-columns:1.05fr .95fr; gap:clamp(32px,5vw,72px); align-items:stretch; }
+.contact-grid > *{min-width:0;}
+.contact-section h2{ font-size:clamp(1.7rem,3.2vw,2.5rem); color:#F6F7FC; max-width:15em; }
+.steps3{ margin:clamp(28px,4vw,44px) 0 0; padding:0; list-style:none; counter-reset:s3; display:flex; flex-direction:column; gap:var(--sp-4); }
+.steps3 li{ counter-increment:s3; display:flex; gap:1.2em; background:rgba(255,255,255,.06); border:1px solid rgba(255,255,255,.1); border-radius:var(--r-card); padding:var(--sp-5); }
+.steps3 li::before{ content:counter(s3); flex:none; width:44px; height:44px; border-radius:50%; background:var(--grad-signal); color:#1c1330; display:flex; align-items:center; justify-content:center; font-family:var(--display); font-weight:800; }
+.steps3 h4{ font-family:var(--text); font-weight:700; font-size:var(--fs-md); line-height:1.25; color:#fff; margin-bottom:.35em; }
+.steps3 p{ font-size:var(--fs-base); color:var(--lav-l); line-height:1.55; }
+.contact-card{ background:var(--glass-bg); border:1px solid var(--glass-border); border-radius:var(--r-lg); padding:clamp(24px,3.4vw,40px); display:flex; flex-direction:column; gap:1.3em; }
+.contact-card .lead{ font-size:var(--fs-base); margin:0; }
+.mail{ display:flex; align-items:center; justify-content:space-between; gap:12px; flex-wrap:wrap; background:rgba(255,255,255,.07); border:1px solid rgba(255,255,255,.16); border-radius:var(--r-md); padding:.7em .7em .7em 1.2em; }
+.mail code{ font-family:var(--display); font-weight:700; letter-spacing:-.02em; font-size:var(--fs-md); color:#fff; word-break:normal; overflow-wrap:anywhere; }
+.contact-card .btn-ghost{ justify-content:center; max-width:100%; white-space:normal; text-align:center; }
+
+
+/* ============ footer ============ */
+footer{ background:var(--navy-deepest); padding:48px 0 34px; }
+.footer-row{ display:flex; justify-content:space-between; align-items:flex-start; gap:24px; flex-wrap:wrap; }
+.footer-brand{ display:flex; align-items:center; gap:.6em; }
+.footer-brand .mark{ width:22px; height:19px; }
+.footer-brand span{ font-family:var(--display); font-weight:700; letter-spacing:-.02em; color:#fff; font-size:var(--fs-base); }
+.footer-nav{ display:flex; gap:20px; flex-wrap:wrap; }
+.footer-nav a{ font-size:var(--fs-sm); color:var(--lav-l); opacity:.8; }
+.footer-nav a:hover{ opacity:1; color:var(--pink); }
+.footer-copy{ font-size:var(--fs-2xs); color:var(--lav-l); opacity:.5; margin-top:28px; max-width:60em; line-height:1.6; }
+
+
+/* ============ responsive ============ */
+@media (max-width:980px){
+  nav.primary-nav{ display:none; }
+  .stat-rail{ grid-template-columns:repeat(2,1fr); }
+  .uc-grid, .uc-grid--3{ grid-template-columns:1fr; }
+  .fmt-grid{ grid-template-columns:1fr; }
+  .ch-grid{ grid-template-columns:1fr; }
+  .ch-foot{ grid-template-columns:1fr; }
+  .benefit-layout{ grid-template-columns:1fr; }
+  .adv-strip{ grid-template-columns:repeat(2,1fr); }
+  .adv-item:nth-child(3){ border-left:none; }
+  .adv-item:nth-child(n+3){ border-top:1px solid rgba(255,255,255,.1); }
+  .journey{ grid-template-columns:repeat(2,1fr); }
+  .journey::before{ display:none; }
+  .step h3{ min-height:0; }
+  .measure, .case-grid, .contact-grid{ grid-template-columns:1fr; }
+  .trust{ flex-direction:column; align-items:flex-start; gap:14px; }
+  .trust .clients-marquee{ width:100%; }
+}
+@media (max-width:640px){
+  .stat-rail, .stat-rail--2{ grid-template-columns:1fr; }
+  .hero{ padding-top:120px; }
+  .uc-card{ flex-direction:column; }
+  .adv-strip{ grid-template-columns:1fr; }
+  .adv-item{ border-left:none; border-top:1px solid rgba(255,255,255,.1); }
+  .adv-item:first-child{ border-top:none; }
+  .journey{ grid-template-columns:1fr; }
+  .mrow{ grid-template-columns:1fr; gap:.6em; }
+  .case-nums{ grid-template-columns:1fr; }
+  .tv-format-meta{ grid-template-columns:1fr; }
+  .tv-vendor-head{ flex-direction:column; }
+  .steps3 li{ flex-direction:column; }
+}
+
+/* ============ UPDATED & NEW STYLES ============ */
+.hero {
+  padding-top: clamp(80px, 10vh, 120px) !important;
+  padding-bottom: clamp(32px, 5vh, 60px) !important;
+  min-height: 100svh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+.hero-layout {
+  display: grid;
+  grid-template-columns: 0.9fr 1.1fr;
+  align-items: center;
+  gap: clamp(24px, 3.5vw, 52px);
+  width: 100%;
+}
+.hero-inner {
+  max-width: 530px !important;
+  width: 100%;
+}
+.hero .headline {
+  max-width: 22em !important;
+  font-size: clamp(1.45rem, 2.5vw, 2.15rem);
+  line-height: 1.25;
+  margin: .7em 0 .45em;
+}
+.hero .sub {
+  max-width: 34em !important;
+  margin-bottom: .8em !important;
+}
+.hero .note {
+  max-width: 36em !important;
+  margin-bottom: 1.6em !important;
+}
+.hero .cta-row {
+  margin-bottom: 0 !important;
+}
+
+@media (max-width: 980px) {
+  .hero-layout {
+    grid-template-columns: 1fr;
+    gap: 40px;
+  }
+  .hero-inner {
+    max-width: 760px !important;
+  }
+  .hero .headline {
+    max-width: 32em !important;
+  }
+  .hero .sub, .hero .note {
+    max-width: 48em !important;
+  }
+}
+
+/* ============ Screen 2 Advantages & Market Stat ============ */
+.adv-market-card {
+  background: linear-gradient(135deg, rgba(129, 141, 255, .12), rgba(248, 140, 255, .08));
+  border: 1px solid rgba(255, 255, 255, .14);
+  border-radius: var(--r-lg);
+  padding: clamp(18px, 2.5vw, 26px) clamp(22px, 3.2vw, 36px);
+  margin-bottom: clamp(24px, 3.5vw, 36px);
+}
+.adv-market-inner {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 14px 28px;
+}
+.adv-market-lead {
+  display: flex;
+  align-items: baseline;
+  gap: clamp(12px, 1.8vw, 22px);
+  flex-wrap: wrap;
+}
+.adv-market-num {
+  font-family: var(--display);
+  font-weight: 900;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -.02em;
+  font-size: clamp(2.5rem, 4.8vw, 3.8rem);
+  line-height: 1;
+  background: linear-gradient(120deg, #fff 30%, var(--lav-l));
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+.adv-market-label {
+  font-size: var(--fs-md);
+  font-weight: 500;
+  color: var(--lav-l);
+}
+.adv-market-label b {
+  color: var(--pink);
+  font-weight: 700;
+}
+.adv-market-source {
+  font-size: var(--fs-xs);
+  color: var(--lav-l);
+  opacity: .8;
+  white-space: nowrap;
+}
+@media (max-width: 640px) {
+  .adv-market-source {
+    white-space: normal;
+  }
+}
+.adv-market-source a {
+  text-decoration: underline;
+  color: inherit;
+}
+.adv-market-source a:hover {
+  color: #fff;
+}
+
+/* Trust badge & marquee */
+.trust {
+  margin-top: clamp(28px, 4vw, 44px);
+  display: flex;
+  align-items: center;
+  gap: clamp(20px, 3vw, 40px);
+}
+.trust-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  background: linear-gradient(135deg, rgba(248, 140, 255, .2), rgba(129, 141, 255, .22));
+  border: 1px solid rgba(248, 140, 255, .45);
+  border-radius: 999px;
+  padding: 10px 24px;
+  flex-shrink: 0;
+}
+.trust-badge-dot {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: var(--pink);
+  animation: pulseDot 2s infinite ease-in-out;
+}
+@keyframes pulseDot {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.5; transform: scale(0.85); }
+}
+.trust-badge-text {
+  font-family: var(--display);
+  font-weight: 800;
+  font-size: clamp(1rem, 1.3vw, 1.2rem);
+  letter-spacing: .02em;
+  color: #fff;
+  text-transform: uppercase;
+}
+
+/* Headings single line */
+.single-line-h2 {
+  max-width: 32em;
+  font-size: clamp(1.6rem, 2.8vw, 2.4rem);
+  letter-spacing: -.02em;
+  line-height: 1.25;
+  text-wrap: balance;
+}
+
+.cjm-title {
+  max-width: 32em;
+  font-size: clamp(1.6rem, 2.7vw, 2.3rem);
+  letter-spacing: -.02em;
+  line-height: 1.25;
+  text-wrap: balance;
+}
+@media (max-width: 580px) {
+  .cjm-br {
+    display: none;
+  }
+}
+
+/* CJM Journey Grid with Formats & Screenshots */
+.cjm-journey-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: var(--sp-4);
+  margin-top: clamp(24px, 3.5vw, 40px);
+}
+@media (max-width: 1100px) {
+  .cjm-journey-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: var(--sp-5);
+  }
+}
+@media (max-width: 640px) {
+  .cjm-journey-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.cjm-step-card {
+  background: var(--navy-deepest);
+  border: 1px solid rgba(255, 255, 255, .1);
+  border-radius: var(--r-card);
+  padding: clamp(18px, 2.2vw, 24px);
+  display: flex;
+  flex-direction: column;
+  gap: 1.1em;
+  transition: transform .4s var(--ease-spring-soft), border-color .3s ease, box-shadow .3s ease;
+  position: relative;
+}
+.cjm-step-card:hover {
+  transform: translateY(-5px);
+  border-color: rgba(248, 140, 255, .4);
+}
+.cjm-step-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: .6em;
+  font-size: var(--fs-2xs);
+  font-weight: 700;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  color: var(--pink);
+}
+.cjm-step-badge b {
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--pink), var(--indigo));
+  color: #1c1330;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--display);
+  font-weight: 800;
+  font-size: var(--fs-xs);
+}
+.cjm-step-card h4 {
+  font-family: var(--display);
+  font-weight: 700;
+  font-size: var(--fs-base);
+  color: #fff;
+  line-height: 1.25;
+  margin: 0;
+}
+.cjm-step-desc {
+  font-size: var(--fs-base);
+  color: var(--lav-l);
+  line-height: 1.5;
+  margin: 0;
+}
+
+/* TV screen preview mockup inside each journey step */
+.tv-preview-frame {
+  background: #10141e;
+  border: 2px solid rgba(255, 255, 255, .14);
+  border-radius: 8px;
+  padding: 6px;
+}
+.tv-preview-screen {
+  aspect-ratio: 16/9;
+  border-radius: 5px;
+  background: #171d2b;
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Specific mockup visuals for the 4 moments */
+/* Mockup 1: Home Hero */
+.screen-home {
+  background: radial-gradient(circle at 75% 20%, rgba(248,140,255,.25), transparent 60%), #141926;
+  padding: 8px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+.screen-home .ui-bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 8px;
+  color: var(--lav-l);
+  opacity: .8;
+}
+.screen-home .ui-hero-slot {
+  background: linear-gradient(135deg, rgba(248,140,255,.22), rgba(129,141,255,.26));
+  border: 1px dashed rgba(248,140,255,.65);
+  border-radius: 4px;
+  padding: 8px 10px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+.screen-home .ui-hero-title {
+  font-family: var(--display);
+  font-size: 9px;
+  font-weight: 800;
+  color: #fff;
+  letter-spacing: .02em;
+}
+.screen-home .ui-hero-tag {
+  font-size: 7px;
+  color: var(--pink);
+  font-weight: 700;
+  text-transform: uppercase;
+}
+.screen-home .ui-app-row {
+  display: flex;
+  gap: 4px;
+}
+.screen-home .ui-app-pill {
+  height: 10px;
+  flex: 1;
+  background: rgba(255,255,255,.12);
+  border-radius: 2px;
+}
+
+/* Mockup 2: Discovery */
+.screen-discovery {
+  background: #141926;
+  padding: 8px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+.screen-discovery .ui-nav {
+  display: flex;
+  gap: 6px;
+  font-size: 7px;
+  color: var(--lav-l);
+}
+.screen-discovery .ui-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1.4fr 1fr;
+  gap: 5px;
+  height: 52px;
+}
+.screen-discovery .ui-card-thumb {
+  background: rgba(255,255,255,.08);
+  border-radius: 3px;
+}
+.screen-discovery .ui-card-ad {
+  background: linear-gradient(135deg, rgba(129,141,255,.3), rgba(248,140,255,.25));
+  border: 1px dashed rgba(129,141,255,.7);
+  border-radius: 3px;
+  padding: 4px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  text-align: center;
+}
+.screen-discovery .ui-card-ad span {
+  font-family: var(--display);
+  font-size: 7px;
+  font-weight: 700;
+  color: #fff;
+}
+.screen-discovery .ui-card-ad small {
+  font-size: 6px;
+  color: var(--lav-l);
+}
+
+/* Mockup 3: In-Stream Video */
+.screen-video {
+  background: radial-gradient(circle at 50% 50%, #202738, #111520);
+  padding: 8px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  position: relative;
+}
+.screen-video .ui-ad-overlay {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: rgba(0,0,0,.65);
+  border-radius: 3px;
+  padding: 3px 6px;
+}
+.screen-video .ui-ad-tag {
+  font-size: 7px;
+  color: var(--pink);
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+.screen-video .ui-ad-time {
+  font-size: 7px;
+  color: #fff;
+  font-family: var(--display);
+}
+.screen-video .ui-center-visual {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 3px;
+}
+.screen-video .ui-center-visual svg {
+  width: 20px;
+  height: 20px;
+  color: var(--indigo);
+}
+.screen-video .ui-center-visual span {
+  font-family: var(--display);
+  font-size: 8px;
+  font-weight: 800;
+  color: #fff;
+}
+.screen-video .ui-progress-bar {
+  height: 3px;
+  background: rgba(255,255,255,.2);
+  border-radius: 2px;
+  overflow: hidden;
+}
+.screen-video .ui-progress-fill {
+  width: 45%;
+  height: 100%;
+  background: var(--pink);
+}
+
+/* Mockup 4: Second Screen & QR */
+.screen-qr {
+  background: radial-gradient(circle at 30% 50%, rgba(129,141,255,.18), transparent 70%), #131724;
+  padding: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.screen-qr .ui-qr-left {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  max-width: 60%;
+}
+.screen-qr .ui-qr-title {
+  font-family: var(--display);
+  font-size: 8px;
+  font-weight: 800;
+  color: #fff;
+  line-height: 1.1;
+}
+.screen-qr .ui-qr-sub {
+  font-size: 6px;
+  color: var(--lav-l);
+}
+.screen-qr .ui-qr-box {
+  background: #fff;
+  border-radius: 4px;
+  padding: 4px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+}
+.screen-qr .ui-qr-box svg {
+  width: 28px;
+  height: 28px;
+}
+.screen-qr .ui-qr-box span {
+  font-size: 5px;
+  color: #1c1330;
+  font-weight: 800;
+}
+
+.cjm-step-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+  margin-top: auto;
+  padding-top: .8em;
+  border-top: 1px solid rgba(255, 255, 255, .08);
+}
+.cjm-step-tag {
+  font-size: var(--fs-2xs);
+  color: var(--lav-l);
+  background: rgba(255, 255, 255, .06);
+  border-radius: 999px;
+  padding: .3em .8em;
+  font-weight: 500;
+}
+.cjm-step-tag.accent {
+  color: var(--pink);
+  background: rgba(248, 140, 255, .1);
+  border: 1px solid rgba(248, 140, 255, .25);
+  font-weight: 600;
+}
+
+.fmt-section-wrap {
+  margin-top: clamp(48px, 6vw, 72px);
+  padding-top: clamp(36px, 5vw, 56px);
+  border-top: 1px solid rgba(255, 255, 255, .12);
+}
+.fmt-section-header {
+  margin-bottom: clamp(24px, 3.5vw, 40px);
+}
+.fmt-section-header h3 {
+  font-family: var(--display);
+  font-weight: var(--display-weight);
+  font-size: clamp(1.4rem, 2.4vw, 2rem);
+  color: #fff;
+  margin-bottom: .4em;
+}
+.fmt-section-header p {
+  color: var(--lav-l);
+  font-size: var(--fs-base);
+  max-width: 44em;
+}
+
+/* ============ commercial offer ============ */
+.benefit-section-head{margin-bottom:clamp(36px,5vw,56px);}
+.benefit-offer-frame{
+  margin-top:24px; border:1px solid rgba(248,140,255,.5); border-radius:var(--r-card);
+  padding:clamp(24px,4vw,44px); background:rgba(248,140,255,.035);
+}
+.benefit-section-head.in .benefit-offer-frame{animation:offerFloat 7s ease-in-out 3;}
+.benefit-section-head .benefit-offer-frame h2{
+  max-width:23em; margin:0; font-size:clamp(1.4rem,4.5vw,2.75rem);
+  line-height:1.22; text-wrap:balance;
+}
+.benefit-offer-copy{color:var(--lav-l); max-width:49em; font-size:clamp(1.05rem,1.6vw,1.25rem); line-height:1.65; margin-top:28px;}
+.benefit-advantages-title{color:#fff; font-weight:var(--display-weight); font-size:clamp(1.25rem,2.2vw,1.6rem); line-height:1.3; margin-bottom:24px;}
+#usecases .section-head h2{max-width:23em;}
+.case-project-title{font-family:var(--text); color:var(--lav-xl); font-size:clamp(1.2rem,2.2vw,1.6rem); line-height:1.4; margin-bottom:18px;}
+@keyframes offerFloat{0%,100%{transform:translateY(0);}50%{transform:translateY(-4px);}}
+
+.benefit-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: var(--sp-5);
+}
+@media (max-width: 900px) {
+  .benefit-grid {
+    grid-template-columns: 1fr;
+  }
+}
+.benefit-card {
+  background: rgba(255, 255, 255, .05);
+  border: 1px solid rgba(255, 255, 255, .1);
+  border-radius: var(--r-card);
+  padding: clamp(22px, 3vw, 30px);
+  display: flex;
+  flex-direction: column;
+  gap: .9em;
+}
+.benefit-card-icon {
+  width: 44px;
+  height: 44px;
+  border-radius: var(--r-md);
+  background: linear-gradient(135deg, rgba(129, 141, 255, .2), rgba(248, 140, 255, .15));
+  border: 1px solid rgba(255, 255, 255, .16);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--pink);
+}
+.benefit-card h4 {
+  font-family: var(--text);
+  font-weight: 700;
+  font-size: var(--fs-md);
+  line-height: 1.25;
+  color: #fff;
+  margin: 0;
+}
+.benefit-card p {
+  font-size: var(--fs-base);
+  color: var(--lav-l);
+  line-height: 1.55;
+  margin: 0;
+}
+
+
+.fmt-card[data-product="apps"] .screen-img{object-fit:contain;}
+.screen-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+/* ============ Landing review: offer and daypart timeline ============ */
+html{scroll-padding-top:88px;}
+.section[id],#dayparts,#formats{scroll-margin-top:0;}
+.hero h1{font-size:clamp(3.4rem,7vw,5.7rem);}
+.hero .headline{font-size:clamp(1.45rem,2.1vw,1.9rem);}
+.hero .hero-offer{
+  color:var(--pink); font-size:clamp(1rem,1.5vw,1.2rem); font-weight:600;
+  line-height:1.5; max-width:30em; margin:1.1em 0 1.5em;
+}
+.section-head .cjm-title{max-width:28em; line-height:1.25; text-wrap:balance;}
+.cjm-step-card{min-width:0;}
+.cjm-step-badge{letter-spacing:.025em; line-height:1.5; min-height:3em; white-space:nowrap;}
+.cjm-step-badge b{flex-shrink:0;}
+.screen-discovery .ui-card-ad span{font-family:var(--text); font-size:7px; line-height:1.25;}
+.daypart-section{margin-top:clamp(48px,6vw,72px); padding-top:clamp(36px,5vw,56px); border-top:1px solid rgba(255,255,255,.12);}
+.daypart-section .daypart-intro{color:#fff; font-weight:600; margin:1.2em 0 .6em;}
+.daypart-tabs{display:grid; grid-template-columns:repeat(5,minmax(0,1fr)); gap:12px;}
+.daypart-tab{
+  appearance:none; width:100%; min-width:0; text-align:left; font:inherit; color:var(--lav-l);
+  background:var(--navy-deepest); border:1px solid rgba(255,255,255,.12); border-radius:var(--r-card);
+  padding:16px; cursor:pointer; display:flex; flex-direction:column; gap:8px;
+  transition:border-color .25s ease, background .25s ease;
+}
+.daypart-tab:hover{border-color:var(--indigo);}
+.daypart-tab[aria-selected="true"]{border-color:var(--pink); background:rgba(248,140,255,.07);}
+.daypart-tab:focus-visible{outline-offset:4px;}
+.daypart-scene{display:block; width:100%; margin-bottom:8px;}
+.daypart-sky{
+  display:block; position:relative; height:64px; overflow:hidden; border-radius:4px;
+  background:radial-gradient(ellipse at 25% 95%,rgba(248,140,255,.25),transparent 70%),#202739;
+}
+.daypart-orbit{position:absolute; left:22%; top:29px; width:24px; height:24px; border-radius:50%; background:var(--pink);}
+.daypart-horizon{position:absolute; left:0; right:0; bottom:12px; height:1px; background:rgba(192,196,222,.45);}
+.daypart-tab--day .daypart-sky{background:radial-gradient(ellipse at 50% 30%,rgba(129,141,255,.3),transparent 80%),#202739;}
+.daypart-tab--day .daypart-orbit{left:calc(50% - 12px); top:8px; background:var(--lav-xl);}
+.daypart-tab--evening .daypart-orbit{left:65%; top:33px;}
+.daypart-tab--prime .daypart-sky,.daypart-tab--night .daypart-sky{background:radial-gradient(circle at 18% 22%,#c0c4de 0 1px,transparent 2px),radial-gradient(circle at 78% 40%,#c0c4de 0 1px,transparent 2px),#171d2b;}
+.daypart-tab--prime .daypart-orbit,.daypart-tab--night .daypart-orbit{left:60%; top:10px; background:var(--lav-xl); box-shadow:none;}
+.daypart-tab--prime .daypart-orbit:after,.daypart-tab--night .daypart-orbit:after{content:""; position:absolute; width:22px; height:22px; background:#171d2b; border-radius:50%; left:-6px; top:-4px;}
+.daypart-tab--night .daypart-orbit{left:26%; top:16px;}
+.daypart-time{color:var(--pink); font-size:var(--fs-sm); font-weight:600; font-variant-numeric:tabular-nums;}
+.daypart-name{font-family:var(--display); font-size:var(--fs-sm); font-weight:700; color:#fff; line-height:1.4;}
+.daypart-short{font-size:var(--fs-2xs); margin-top:auto; padding-top:4px;}
+.daypart-panel{display:grid; grid-template-columns:1.6fr 1fr; margin-top:20px; border:1px solid rgba(255,255,255,.12); border-radius:var(--r-card); background:var(--navy-deepest); overflow:hidden;}
+.daypart-panel[hidden]{display:none;}
+.daypart-facts{margin:0; padding:clamp(22px,3vw,32px); display:grid; gap:20px;}
+.daypart-facts dt{color:#fff; font-size:var(--fs-sm); font-weight:600; margin-bottom:5px;}
+.daypart-facts dd{margin:0; color:var(--lav-l); font-size:var(--fs-base); line-height:1.5;}
+.daypart-benefit{padding:clamp(22px,3vw,32px); background:var(--grad-signal-soft); display:flex; flex-direction:column; align-items:flex-start; gap:16px; border-left:1px solid rgba(255,255,255,.1);}
+.daypart-benefit>span{color:var(--pink); font-size:var(--fs-sm); font-weight:600;}
+.daypart-benefit p{color:#fff; font-size:var(--fs-md); line-height:1.6;}
+.daypart-benefit a{color:var(--pink); font-size:var(--fs-sm); font-weight:600; margin-top:auto; padding-top:8px; text-decoration:underline; text-underline-offset:4px;}
+.daypart-note{color:var(--lav-l); font-size:var(--fs-xs); margin-top:16px; max-width:58em;}
+@media(max-width:760px){
+  .daypart-tabs{display:flex; overflow-x:auto; padding:4px 4px 12px; margin:-4px; scroll-snap-type:x proximity;}
+  .daypart-tab{flex:0 0 160px; scroll-snap-align:start;}
+  .daypart-panel{grid-template-columns:1fr;}
+  .daypart-benefit{border-left:0; border-top:1px solid rgba(255,255,255,.1);}
+  .daypart-benefit p{font-size:var(--fs-base);}
+}
+
+/* ============ responsive navigation ============ */
+.nav-toggle{-webkit-tap-highlight-color:transparent; width:44px; height:44px; padding:0; align-items:center; justify-content:center; flex:none; background:transparent; border:1px solid rgba(255,255,255,.2); border-radius:var(--r-sm); color:#fff; cursor:pointer;}
+@media(max-width:980px){
+  .header-row{gap:12px;}
+  .nav-toggle{display:flex; margin-left:auto;}
+  .header-cta{flex:none;}
+  nav.primary-nav{position:absolute; top:calc(100% + 12px); left:clamp(20px,5vw,64px); right:clamp(20px,5vw,64px); display:none; grid-template-columns:1fr 1fr; gap:4px; padding:12px; border:1px solid rgba(255,255,255,.16); border-radius:var(--r-card); background:var(--navy-deepest);}
+  .site-header.nav-open nav.primary-nav{display:grid;}
+  nav.primary-nav a{display:flex; align-items:center; min-height:44px; padding:10px 12px; font-size:var(--fs-sm); border-radius:var(--r-sm);}
+  nav.primary-nav a:hover,nav.primary-nav a:focus-visible{background:rgba(255,255,255,.08); color:#fff;}
+  .site-header.nav-open{background:var(--navy-deep);}
+}
+@media(max-width:420px){
+  .site-header .brand-word{display:none;}
+}
+@media(max-width:360px){
+  .section-head h2{font-size:clamp(1.25rem,6.3vw,1.5rem); line-height:1.25;}
+}
+
+/* ============ Review 4: brand, progress controls and wide task cards ============ */
+.hero .hero-logo{width:min(100%,420px); height:auto;}
+.hero-tv-col{flex-direction:column; gap:clamp(28px,3vw,40px); min-width:0;}
+.hero .hero-offer--floating{margin:0; max-width:30em; padding:16px 22px; border:1px solid rgba(248,140,255,.4); border-radius:var(--r-card); background:rgba(24,29,40,.55); text-align:center; text-wrap:balance; animation:offerFloat 7s ease-in-out 3;}
+.tv-carousel-controls{display:flex; justify-content:center; align-items:center; gap:8px; margin-top:12px;}
+.tv-nav-dots{margin-top:0; gap:4px;}
+.tv-dot{width:44px; height:44px; flex:none; display:flex; align-items:center; background:none; border-radius:var(--r-sm);}
+.tv-dot[hidden]{display:none;}
+.tv-dot.is-active{width:44px; background:none;}
+.tv-dot-track{display:block; width:100%; height:4px; border-radius:var(--r-btn); overflow:hidden; background:rgba(255,255,255,.2);}
+.tv-dot-fill{display:block; width:100%; height:100%; background:var(--pink); transform:scaleX(0); transform-origin:left;}
+.tv-dot.is-active .tv-dot-track{background:rgba(248,140,255,.2);}
+.tv-play-toggle{width:44px; height:44px; flex:none; display:flex; align-items:center; justify-content:center; border:1px solid rgba(255,255,255,.18); border-radius:50%; color:#fff; background:transparent; cursor:pointer;}
+.tv-play-toggle .tv-play-icon,.tv-play-toggle.is-paused .tv-pause-icon{display:none;}
+.tv-play-toggle.is-paused .tv-play-icon{display:block;}
+#whatis .uc-card,#usecases .uc-card{min-width:0; transition:transform .35s var(--ease),background .35s ease,border-color .35s ease,box-shadow .35s ease;}
+#whatis .uc-card>div:last-child{min-width:0;}
+#usecases .usecase-rows{grid-template-columns:1fr; gap:16px;}
+#usecases .uc-card{display:grid; grid-template-columns:52px minmax(0,1fr); gap:24px; align-items:center;}
+#usecases .usecase-copy{display:grid; grid-template-columns:minmax(180px,.85fr) minmax(0,2.7fr); align-items:center; gap:24px;}
+#usecases .uc-card h4{margin:0; line-height:1.4;}
+#usecases .uc-card p{font-size:var(--fs-base); line-height:1.5;}
+.quality-logo{width:160px; height:auto; margin-bottom:24px;}
+.quality-num{flex:none; display:flex; align-items:center; justify-content:center; width:30px; height:30px; border-radius:50%; color:var(--pink); background:rgba(248,140,255,.12); font-size:var(--fs-2xs); font-weight:700;}
+@media(hover:hover) and (pointer:fine){
+  #whatis .uc-card:hover,#usecases .uc-card:hover{transform:translateY(-3px) scale(1.015); background:#eceafd; border-color:rgba(248,140,255,.8);}
+}
+@media(min-width:981px) and (max-width:1150px){
+  #whatis .uc-grid--3{grid-template-columns:repeat(2,minmax(0,1fr));}
+}
+@media(max-width:900px){
+  #usecases .usecase-copy{grid-template-columns:1fr; gap:10px;}
+}
+@media(max-width:640px){
+  #usecases .uc-card{grid-template-columns:1fr; gap:16px;}
+  #usecases .uc-num{width:40px; height:40px;}
+  .hero .hero-offer--floating{font-size:1rem; padding:14px 18px;}
+}
+@media(prefers-reduced-motion:reduce){
+  #whatis .uc-card:hover,#usecases .uc-card:hover{transform:none;}
+}
+
+/* ============ Consistent vendor logos and contact alignment ============ */
+.hero .hero-offer--floating:hover{border-color:var(--pink); background:rgba(24,29,40,.75);}
+.contact-section .contact-title{margin-bottom:clamp(28px,4vw,44px);}
+.contact-grid .steps3{margin-top:0;}
+.contact-card h3{font-weight:var(--display-weight); font-size:clamp(1.7rem,3.2vw,2.5rem); color:#F6F7FC; max-width:15em; line-height:1.08;}
+@media(max-width:640px){
+  .fmt-logos{grid-template-columns:repeat(2,minmax(0,1fr)); gap:16px 12px;}
+}
+
+</style>
+</head>
+<body>
+
+<!-- reusable mark: two overlapping circles forming the onCTV lens (brand geometry, fill-rule cutout) -->
+<svg width="0" height="0" style="position:absolute">
+  <symbol id="onctv-mark" viewBox="0 0 257 218">
+    <path d="M40.9246 16.3281C68.4452 -2.47531 103.881 -3.97771 135.554 6.41797L136.393 6.69824L151.424 21.5322C198.444 27.5797 243.71 55.3153 255.22 106.588C262.006 146.371 247.307 180.229 215.923 201.673C188.402 220.476 152.966 221.978 121.293 211.582L120.455 211.303L106.359 197.236C106.055 196.927 105.855 196.691 105.719 196.513C58.4067 190.684 13.2042 162.984 1.62671 111.413C-5.15852 71.6299 9.53995 37.7717 40.9246 16.3281ZM150.982 22.2627C136.43 24.4349 102.927 35.9436 88.9871 66.833C75.9899 95.6338 70.103 141.396 105.718 196.268C119.492 194.598 153.501 182.986 167.86 151.168C180.811 122.47 186.18 76.8741 150.982 22.2627Z" fill="currentColor"/>
+  </symbol>
+</svg>
+
+<header class="site-header" id="siteHeader">
+  <div class="wrap header-row">
+    <a class="brand" href="#hero" aria-label="onCTV">
+      <svg class="mark" style="color:var(--pink)"><use href="#onctv-mark"/></svg>
+      <span class="brand-word">on<span>CTV</span></span>
+    </a>
+    <button class="nav-toggle" type="button" aria-expanded="false" aria-controls="primaryNav" aria-label="Открыть меню">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M4 8h16M4 16h16" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+    </button>
+    <nav class="primary-nav" id="primaryNav" aria-label="Разделы">
+      <a href="#whatis">Преимущества</a>
+      <a href="#cjm">Точки контакта</a>
+      <a href="#usecases">Задачи и цели</a>
+      <a href="#verification">Аналитика</a>
+      <a href="#case">Кейсы</a>
+      <a href="#benefit">Условия</a>
+    </nav>
+    <div class="header-cta">
+      <a class="btn btn-primary btn--compact" href="#contact">Получить медиаплан</a>
+    </div>
+  </div>
+</header>
+
+
+<main>
+
+  <!-- ===================== HERO ===================== -->
+  <section class="section hero" id="hero">
+    <div class="eclipse" aria-hidden="true">
+      <div class="c1"></div>
+      <div class="c2"></div>
+    </div>
+    <div class="wrap hero-layout">
+      <div class="hero-inner">
+        <p class="eyebrow"><svg class="mark-dot" style="color:var(--pink)"><use href="#onctv-mark"/></svg>2026 · Медиакит для агентств и брендов</p>
+        <h1><img class="hero-logo" src="assets/onctv-logo-white.svg" alt="onCTV by Adspector" width="569" height="226" fetchpriority="high"></h1>
+        <p class="headline">Реклама на большом экране, когда пользователь выбирает, что смотреть</p>
+        <p class="sub">Размещаем рекламу в интерфейсе Smart TV и внутри приложений для просмотра видео: от первого контакта на главном экране до показа перед началом контента.</p>
+        <div class="cta-row">
+          <a class="btn btn-primary" href="#contact">Получить медиаплан <svg class="btn-arrow" width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></a>
+          <a class="btn btn-ghost" href="#formats">Смотреть форматы</a>
+        </div>
+      </div>
+
+      <div class="hero-tv-col">
+        <a class="hero-offer hero-offer--floating" href="#contact">Получите Smart TV-размещение на лучших условиях</a>
+        <div class="hero-tv-wrap" role="region" aria-roledescription="карусель" aria-label="Примеры размещений onCTV">
+          <button type="button" class="tv-pill tv-pill--os is-active" data-jump="os" aria-label="Показать OS-уровень">
+            <span class="tv-pill-dot"></span>
+            <span class="tv-pill-text">OS-уровень</span>
+          </button>
+          <button type="button" class="tv-pill tv-pill--ott" data-jump="ott" aria-label="Показать OTT-размещения">
+            <span class="tv-pill-dot"></span>
+            <span class="tv-pill-text">OTT-размещения</span>
+          </button>
+
+          <div class="hero-tv-frame">
+            <div class="tv-topbar">
+              <div class="tv-topbar-switches" role="tablist" aria-label="Уровень интеграции">
+                <button type="button" class="tv-switch-pill is-active" data-switch="os" role="tab" aria-selected="true" aria-label="OS-уровень"></button>
+                <button type="button" class="tv-switch-pill" data-switch="ott" role="tab" aria-selected="false" aria-label="OTT-размещения"></button>
+              </div>
+              <div class="tv-topbar-right">
+                <span class="tv-topbar-pill tv-topbar-pill--sm"></span>
+              </div>
+            </div>
+
+            <div class="tv-display" role="button" tabindex="0" aria-label="Следующий пример размещения">
+              <div class="tv-slide is-active" id="tv-slide-os-haier" data-index="0" data-level="os" aria-hidden="false">
+                <img class="tv-slide-img" src="Haier.jpg" alt="Haier Evo TV">
+                <div class="tv-slide-overlay"></div>
+                <div class="tv-slide-badge">
+                  <span class="tv-slide-vendor">Haier Evo TV</span>
+                  <span class="tv-slide-sub">Центральный баннер на главной странице</span>
+                </div>
+              </div>
+              <div class="tv-slide" id="tv-slide-os-xiaomi" data-index="1" data-level="os" aria-hidden="true">
+                <img class="tv-slide-img" src="assets/xiaomi-patchwall-homepage.png" alt="Xiaomi PatchWall — баннер на главной странице" width="2564" height="1440">
+                <div class="tv-slide-overlay"></div>
+                <div class="tv-slide-badge">
+                  <span class="tv-slide-vendor">Xiaomi PatchWall</span>
+                  <span class="tv-slide-sub">Баннер на первой видимой странице платформы</span>
+                </div>
+              </div>
+              <div class="tv-slide" id="tv-slide-os-tcl" data-index="2" data-level="os" aria-hidden="true">
+                <img class="tv-slide-img" src="tcl_homepage_video.jpg" alt="TCL Channel">
+                <div class="tv-slide-overlay"></div>
+                <div class="tv-slide-badge">
+                  <span class="tv-slide-vendor">TCL Channel</span>
+                  <span class="tv-slide-sub">Видео на стартовой странице в ОС TCL</span>
+                </div>
+              </div>
+              <div class="tv-slide" id="tv-slide-os-lg" data-index="3" data-level="os" aria-hidden="true">
+                <img class="tv-slide-img" src="homehero.jpg" alt="LG webOS">
+                <div class="tv-slide-overlay"></div>
+                <div class="tv-slide-badge">
+                  <span class="tv-slide-vendor">LG webOS</span>
+                  <span class="tv-slide-sub">Баннер на главном экране Smart TV при включении</span>
+                </div>
+              </div>
+              <div class="tv-slide" id="tv-slide-ott-pay" data-index="4" data-level="ott" aria-hidden="true">
+                <img class="tv-slide-img" src="assets/onctv-apps-pay.jpg" alt="Пример OTT-рекламы Яндекс Пэй с QR-кодом" width="1017" height="577">
+                <div class="tv-slide-overlay"></div>
+                <div class="tv-slide-badge">
+                  <span class="tv-slide-vendor">OTT · Онлайн-кинотеатры</span>
+                  <span class="tv-slide-sub">In-Stream видеореклама (Pre-Roll, Switch-Roll)</span>
+                </div>
+              </div>
+              <div class="tv-slide" id="tv-slide-ott-start" data-index="5" data-level="ott" aria-hidden="true">
+                <img class="tv-slide-img" src="assets/onctv-apps-start.jpg" alt="Пример OTT-рекламы онлайн-кинотеатра START" width="866" height="502">
+                <div class="tv-slide-overlay"></div>
+                <div class="tv-slide-badge"><span class="tv-slide-vendor">OTT · Онлайн-кинотеатры</span><span class="tv-slide-sub">In-Stream видеореклама (Pre-Roll, Switch-Roll)</span></div>
+              </div>
+            </div>
+
+            <div class="tv-app-row" role="group" aria-label="OTT-приложения">
+              <div class="tv-app-tile" role="button" tabindex="0" title="Перейти к OTT-размещениям">
+                <span class="tv-app-name">Приложения</span>
+              </div>
+              <div class="tv-app-tile" role="button" tabindex="0" title="Перейти к OTT-размещениям">
+                <span class="tv-app-name">Кинотеатры</span>
+              </div>
+              <div class="tv-app-tile" role="button" tabindex="0" title="Перейти к OTT-размещениям">
+                <span class="tv-app-name">ТВ-Каналы</span>
+              </div>
+            </div>
+
+            <div class="tv-carousel-controls">
+              <div class="tv-nav-dots" role="group" aria-label="Примеры OS-уровня">
+                <button type="button" class="tv-dot is-active" data-dot="0" data-level="os" aria-label="Пример 1 из 4: Haier" aria-controls="tv-slide-os-haier" aria-current="true"><span class="tv-dot-track" aria-hidden="true"><span class="tv-dot-fill"></span></span></button>
+                <button type="button" class="tv-dot" data-dot="1" data-level="os" aria-label="Пример 2 из 4: Xiaomi" aria-controls="tv-slide-os-xiaomi"><span class="tv-dot-track" aria-hidden="true"><span class="tv-dot-fill"></span></span></button>
+                <button type="button" class="tv-dot" data-dot="2" data-level="os" aria-label="Пример 3 из 4: TCL" aria-controls="tv-slide-os-tcl"><span class="tv-dot-track" aria-hidden="true"><span class="tv-dot-fill"></span></span></button>
+                <button type="button" class="tv-dot" data-dot="3" data-level="os" aria-label="Пример 4 из 4: LG" aria-controls="tv-slide-os-lg"><span class="tv-dot-track" aria-hidden="true"><span class="tv-dot-fill"></span></span></button>
+                <button type="button" class="tv-dot" data-dot="4" data-level="ott" aria-label="Пример 1 из 2: Яндекс Пэй" aria-controls="tv-slide-ott-pay" hidden><span class="tv-dot-track" aria-hidden="true"><span class="tv-dot-fill"></span></span></button>
+                <button type="button" class="tv-dot" data-dot="5" data-level="ott" aria-label="Пример 2 из 2: START" aria-controls="tv-slide-ott-start" hidden><span class="tv-dot-track" aria-hidden="true"><span class="tv-dot-fill"></span></span></button>
+              </div>
+              <button class="tv-play-toggle" type="button" aria-label="Приостановить смену примеров" aria-pressed="false">
+                <svg class="tv-pause-icon" width="14" height="14" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><path d="M4 3h3v10H4zm5 0h3v10H9z"/></svg>
+                <svg class="tv-play-icon" width="14" height="14" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><path d="m5 3 8 5-8 5z"/></svg>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================== ПРЕИМУЩЕСТВА + КЛИЕНТЫ ===================== -->
+  <section class="section section--darker adv-section" id="advantages">
+    <div class="wrap">
+      <div class="adv-market-card reveal">
+        <div class="adv-market-inner">
+          <div class="adv-market-lead">
+            <span class="adv-market-num" data-count data-to="60.6" data-decimals="1" data-suffix=" млн">0 млн</span>
+            <span class="adv-market-label">устройств — парк Smart TV в России <b>— оценка за 2025 год</b></span>
+          </div>
+          <div class="adv-market-source">Источник: J’son &amp; Partners Consulting, «Рынок Smart TV в России. Итоги 2025 года» — <a href="https://json.tv/analytic/rynok-smart-tv-v-rossii-itogi-2025-goda/" target="_blank" rel="noopener">json.tv</a></div>
+        </div>
+      </div>
+
+      <div class="adv-strip reveal-stagger">
+        <div class="adv-item"><span class="adv-num"><span data-count data-to="5" data-decimals="0">0</span><sup>+</sup></span><span class="adv-cap">лет работы с CTV</span></div>
+        <div class="adv-item"><span class="adv-num"><span data-count data-to="1000" data-decimals="0">1 000</span><sup>+</sup></span><span class="adv-cap">размещённых рекламных кампаний в CTV</span></div>
+        <div class="adv-item"><span class="adv-num"><span data-count data-to="45" data-decimals="0">0</span><sup>+</sup> млн</span><span class="adv-cap">Smart TV доступно на нашем инвентаре</span></div>
+        <div class="adv-item"><span class="adv-num"><span data-count data-to="850" data-decimals="0">0</span><sup>+</sup> млн</span><span class="adv-cap">показов в месяц — совокупный объём в приложениях и ОС</span></div>
+      </div>
+
+      <div class="trust reveal">
+        <div class="trust-badge">
+          <span class="trust-badge-dot"></span>
+          <span class="trust-badge-text">Нам доверяют</span>
+        </div>
+        <div class="clients-marquee">
+          <ul class="clients-track">
+            <li>Wink</li>
+            <li>Rossko</li>
+            <li>ЦПШ</li>
+            <li>Авиапарк</li>
+            <li>Купер</li>
+            <li>Союзмультфильм</li>
+            <li>Самокат</li>
+            <li>ВТБ</li>
+            <li>ГК Пионер</li>
+            <li>MOEX</li>
+            <li>Додо</li>
+            <li>КИОН</li>
+            <li>Ключ</li>
+            <li>Колесо.ру</li>
+            <li>Lamm</li>
+            <li>Мегафон</li>
+            <li>Мультиландия</li>
+            <li>Напитки вместе</li>
+            <li>НСПК (МИР)</li>
+            <li>Островок</li>
+            <li>Premier</li>
+            <li>Mareven</li>
+            <li>Т-Банк</li>
+            <li>Улыбка Радуги</li>
+            <li>Четыре Лапы</li>
+            <li>Яндекс Маркет</li>
+            <li>Askona</li>
+            <li>Best Dinner</li>
+            <li>VK</li>
+            <li>by Баста</li>
+            <li>Carte Noire</li>
+            <li>Evolute</li>
+            <li>Exponenta</li>
+            <li>Familia</li>
+            <li>Ferrero</li>
+            <li>GFD</li>
+            <li>Gislaved</li>
+            <li>Heel</li>
+            <li>Huawei</li>
+            <li>Mixit</li>
+            <li>ОТП Банк</li>
+            <li>Ozon Travel</li>
+            <li>ПИК</li>
+            <li>Rostic’s</li>
+            <li>Rutube</li>
+            <li>Sela</li>
+            <li>Smartavia</li>
+            <li>ВкусВилл</li>
+            <li>Geely</li>
+            <li>Yota</li>
+            <li>SPAR</li>
+            <li>Voyah</li>
+            <li>Winline</li>
+            <li aria-hidden="true">Wink</li>
+            <li aria-hidden="true">Rossko</li>
+            <li aria-hidden="true">ЦПШ</li>
+            <li aria-hidden="true">Авиапарк</li>
+            <li aria-hidden="true">Купер</li>
+            <li aria-hidden="true">Союзмультфильм</li>
+            <li aria-hidden="true">Самокат</li>
+            <li aria-hidden="true">ВТБ</li>
+            <li aria-hidden="true">ГК Пионер</li>
+            <li aria-hidden="true">MOEX</li>
+            <li aria-hidden="true">Додо</li>
+            <li aria-hidden="true">КИОН</li>
+            <li aria-hidden="true">Ключ</li>
+            <li aria-hidden="true">Колесо.ру</li>
+            <li aria-hidden="true">Lamm</li>
+            <li aria-hidden="true">Мегафон</li>
+            <li aria-hidden="true">Мультиландия</li>
+            <li aria-hidden="true">Напитки вместе</li>
+            <li aria-hidden="true">НСПК (МИР)</li>
+            <li aria-hidden="true">Островок</li>
+            <li aria-hidden="true">Premier</li>
+            <li aria-hidden="true">Mareven</li>
+            <li aria-hidden="true">Т-Банк</li>
+            <li aria-hidden="true">Улыбка Радуги</li>
+            <li aria-hidden="true">Четыре Лапы</li>
+            <li aria-hidden="true">Яндекс Маркет</li>
+            <li aria-hidden="true">Askona</li>
+            <li aria-hidden="true">Best Dinner</li>
+            <li aria-hidden="true">VK</li>
+            <li aria-hidden="true">by Баста</li>
+            <li aria-hidden="true">Carte Noire</li>
+            <li aria-hidden="true">Evolute</li>
+            <li aria-hidden="true">Exponenta</li>
+            <li aria-hidden="true">Familia</li>
+            <li aria-hidden="true">Ferrero</li>
+            <li aria-hidden="true">GFD</li>
+            <li aria-hidden="true">Gislaved</li>
+            <li aria-hidden="true">Heel</li>
+            <li aria-hidden="true">Huawei</li>
+            <li aria-hidden="true">Mixit</li>
+            <li aria-hidden="true">ОТП Банк</li>
+            <li aria-hidden="true">Ozon Travel</li>
+            <li aria-hidden="true">ПИК</li>
+            <li aria-hidden="true">Rostic’s</li>
+            <li aria-hidden="true">Rutube</li>
+            <li aria-hidden="true">Sela</li>
+            <li aria-hidden="true">Smartavia</li>
+            <li aria-hidden="true">ВкусВилл</li>
+            <li aria-hidden="true">Geely</li>
+            <li aria-hidden="true">Yota</li>
+            <li aria-hidden="true">SPAR</li>
+            <li aria-hidden="true">Voyah</li>
+            <li aria-hidden="true">Winline</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+
+  <!-- ===================== 01 ПОЧЕМУ onCTV ===================== -->
+  <section class="section section--dark" id="whatis">
+    <div class="wrap">
+      <div class="section-head reveal">
+        <div class="chapter-mark"><span class="num">01</span><span class="divider"></span><span>Почему onCTV</span></div>
+        <h2 class="single-line-h2">Преимущества размещений onCTV</h2>
+        <p class="lead">Прямой доступ к инвентарю Smart TV, единая закупка и сопровождение кампании от медиаплана до отчётности.</p>
+      </div>
+
+      <div class="uc-grid uc-grid--3 reveal-stagger">
+        <div class="uc-card"><div class="uc-num">01</div><div><h4>Доступ к платёжеспособной аудитории</h4><p>Контакт с пользователями платных видеосервисов — аудиторией, недоступной при размещении в OTT-приложениях.</p></div></div>
+        <div class="uc-card"><div class="uc-num">02</div><div><h4>Конкурентная цена</h4><p>Прямые контракты с вендорами позволяют получать доступ к инвентарю Smart TV на прозрачных условиях и оптимизировать стоимость кампании.</p></div></div>
+        <div class="uc-card"><div class="uc-num">03</div><div><h4>Контролируемое качество трафика</h4><p>Проверяем качество трафика, исключаем невалидные показы и анализируем доступные метрики с учётом выбранного источника.</p></div></div>
+        <div class="uc-card"><div class="uc-num">04</div><div><h4>Измеримость кампании</h4><p>Отчётность по ключевым медиапоказателям, а также индустриальные исследования для оценки влияния рекламы на бренд и действия аудитории.</p></div></div>
+        <div class="uc-card"><div class="uc-num">05</div><div><h4>Решения под задачи бренда</h4><p>Подбираем форматы под цели кампании, адаптируем материалы для большого экрана и заранее согласуем KPI и методику оценки результата.</p></div></div>
+        <div class="uc-card"><div class="uc-num">06</div><div><h4>Полное сопровождение</h4><p>Берём на себя маркировку, техническую настройку и отчётность: регистрируем креативы, получаем токены, передаём данные в ОРД и сопровождаем кампанию на всех этапах.</p></div></div>
+      </div>
+
+    </div>
+  </section>
+
+
+  <!-- ===================== 02 ПОЛЬЗОВАТЕЛЬСКИЙ ПУТЬ И ФОРМАТЫ ===================== -->
+  <section class="section section--darker" id="cjm">
+    <div class="wrap">
+      <div class="section-head reveal">
+        <div class="chapter-mark"><span class="num">02</span><span class="divider"></span><span>Пользовательский путь и форматы</span></div>
+        <h2 class="cjm-title">Точки контакта с аудиторией на каждом из этапов взаимодействия с контентом</h2>
+        <p class="lead">На протяжении всего пользования Smart TV форматы onCTV находятся прямо перед глазами зрителя: от первого включения до выбора контента, просмотра видео и перехода на сайт со смартфона.</p>
+      </div>
+
+      <!-- 4 сценария пути зрителя с визуализацией экранов -->
+      <div class="cjm-journey-grid reveal-stagger">
+        <!-- Сценарий 01 -->
+        <div class="cjm-step-card">
+          <div class="cjm-step-badge"><b>1</b><span class="cjm-step-label">Включение ТВ</span></div>
+          <div class="tv-preview-frame">
+            <div class="tv-preview-screen screen-home">
+              <div class="ui-bar"><span>● SMART TV OS</span><span>19:45</span></div>
+              <div class="ui-hero-slot">
+                <span class="ui-hero-tag">РЕКЛАМА · ПЕРВЫЙ КОНТАКТ</span>
+              </div>
+              <div class="ui-app-row">
+                <div class="ui-app-pill"></div><div class="ui-app-pill"></div><div class="ui-app-pill"></div><div class="ui-app-pill"></div>
+              </div>
+            </div>
+          </div>
+          <h4>Главный экран ОС</h4>
+          <p class="cjm-step-desc">Контакт с аудиторией до выбора приложения для просмотра контента. Максимальный фокус пользователя на интерфейсе Smart TV.</p>
+          <div class="cjm-step-tags">
+            <span class="cjm-step-tag accent">onCTV Vendors</span>
+          </div>
+        </div>
+
+        <!-- Сценарий 02 -->
+        <div class="cjm-step-card">
+          <div class="cjm-step-badge"><b>2</b><span class="cjm-step-label">Выбор контента</span></div>
+          <div class="tv-preview-frame">
+            <div class="tv-preview-screen screen-discovery">
+              <div class="ui-nav"><span>Фильмы</span><span>Сериалы</span><span>Каталог</span></div>
+              <div class="ui-grid">
+                <div class="ui-card-thumb"></div>
+                <div class="ui-card-ad"><span>Блок рекомендаций</span></div>
+                <div class="ui-card-thumb"></div>
+                <div class="ui-card-thumb"></div>
+              </div>
+            </div>
+          </div>
+          <h4>Меню и витрины: Discovery</h4>
+          <p class="cjm-step-desc">Реклама органично интегрирована в каталог контента, карусели лаунчера и рекомендации. Попадает в поле зрения в момент принятия решения о просмотре.</p>
+          <div class="cjm-step-tags">
+            <span class="cjm-step-tag accent">onCTV Vendors</span>
+          </div>
+        </div>
+
+        <!-- Сценарий 03 -->
+        <div class="cjm-step-card">
+          <div class="cjm-step-badge"><b>3</b><span class="cjm-step-label">Просмотр</span></div>
+          <div class="tv-preview-frame">
+            <div class="tv-preview-screen screen-video">
+              <div class="ui-ad-overlay">
+                <span class="ui-ad-tag"><svg width="10" height="10" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 14.5v-9l6 4.5-6 4.5z"/></svg> РЕКЛАМА</span>
+                <span class="ui-ad-time">0:15 · 100% SOUND ON</span>
+              </div>
+              <div class="ui-center-visual">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"/></svg>
+                <span>IN-STREAM ВИДЕО</span>
+              </div>
+              <div class="ui-progress-bar"><div class="ui-progress-fill"></div></div>
+            </div>
+          </div>
+          <h4>Видео в OTT: Pre-Roll & Switch-Roll</h4>
+          <p class="cjm-step-desc">Полноэкранный видеоролик перед контентом или при переключении каналов в онлайн-кинотеатрах. Взаимодействие с ЦА в момент потребления контента.</p>
+          <div class="cjm-step-tags">
+            <span class="cjm-step-tag">onCTV Apps</span>
+          </div>
+        </div>
+
+        <!-- Сценарий 04 -->
+        <div class="cjm-step-card">
+          <div class="cjm-step-badge"><b>4</b><span class="cjm-step-label">Доп. возможности</span></div>
+          <div class="tv-preview-frame">
+            <div class="tv-preview-screen screen-qr">
+              <div class="ui-qr-left">
+                <span class="ui-qr-title">СКАНИРУЙТЕ И ЗАКАЗЫВАЙТЕ</span>
+                <span class="ui-qr-sub">Скидка 20% в приложении</span>
+              </div>
+              <div class="ui-qr-box">
+                <svg viewBox="0 0 24 24" fill="none" stroke="#1c1330" stroke-width="1.8"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="3" height="3"/><rect x="18" y="18" width="3" height="3"/></svg>
+                <span>SCAN ME</span>
+              </div>
+            </div>
+          </div>
+          <h4>Second Screen: QR и диплинки</h4>
+          <p class="cjm-step-desc">QR-код или клик с пульта, расширяющие возможности пользователя. Дополнительный инструмент для мгновенного перехода пользователя на сайт или совершения целевого действия.</p>
+          <div class="cjm-step-tags">
+            <span class="cjm-step-tag accent">onCTV Vendors</span>
+            <span class="cjm-step-tag">onCTV Apps</span>
+          </div>
+        </div>
+      </div>
+
+      <section class="daypart-section" id="dayparts" aria-labelledby="dayparts-title">
+        <div class="fmt-section-header reveal">
+          <h3 id="dayparts-title">Телесмотрение в течение дня</h3>
+          <p class="daypart-intro">Каждый период телесмотрения — отдельная возможность для бренда</p>
+          <p>Утром аудитория начинает день с новостей и полезного контента, днём телевизор смотрят люди с гибким графиком, а вечером к экранам возвращается широкая семейная аудитория. Вечерние размещения помогают наращивать охват, а дневные и ночные — работать с отдельными сегментами и частотой контакта.</p>
+        </div>
+        <div class="daypart-tabs" role="tablist" aria-label="Периоды телесмотрения">
+          <button class="daypart-tab daypart-tab--morning" id="daypart-tab-morning" type="button" role="tab" aria-selected="true" aria-controls="daypart-panel-morning" tabindex="0">
+            <span class="daypart-scene tv-preview-frame" aria-hidden="true"><span class="daypart-sky"><span class="daypart-orbit"></span><span class="daypart-horizon"></span></span></span>
+            <span class="daypart-time">06:00–09:00</span><span class="daypart-name">Утро</span><span class="daypart-short">Начало дня</span>
+          </button>
+          <button class="daypart-tab daypart-tab--day" id="daypart-tab-day" type="button" role="tab" aria-selected="false" aria-controls="daypart-panel-day" tabindex="-1">
+            <span class="daypart-scene tv-preview-frame" aria-hidden="true"><span class="daypart-sky"><span class="daypart-orbit"></span><span class="daypart-horizon"></span></span></span>
+            <span class="daypart-time">09:00–17:00</span><span class="daypart-name">День</span><span class="daypart-short">Отдельные сегменты</span>
+          </button>
+          <button class="daypart-tab daypart-tab--evening" id="daypart-tab-evening" type="button" role="tab" aria-selected="false" aria-controls="daypart-panel-evening" tabindex="-1">
+            <span class="daypart-scene tv-preview-frame" aria-hidden="true"><span class="daypart-sky"><span class="daypart-orbit"></span><span class="daypart-horizon"></span></span></span>
+            <span class="daypart-time">17:00–20:00</span><span class="daypart-name">Вечер</span><span class="daypart-short">Семейная аудитория</span>
+          </button>
+          <button class="daypart-tab daypart-tab--prime" id="daypart-tab-prime" type="button" role="tab" aria-selected="false" aria-controls="daypart-panel-prime" tabindex="-1">
+            <span class="daypart-scene tv-preview-frame" aria-hidden="true"><span class="daypart-sky"><span class="daypart-orbit"></span><span class="daypart-horizon"></span></span></span>
+            <span class="daypart-time">20:00–23:00</span><span class="daypart-name">Прайм-тайм</span><span class="daypart-short">Широкий охват</span>
+          </button>
+          <button class="daypart-tab daypart-tab--night" id="daypart-tab-night" type="button" role="tab" aria-selected="false" aria-controls="daypart-panel-night" tabindex="-1">
+            <span class="daypart-scene tv-preview-frame" aria-hidden="true"><span class="daypart-sky"><span class="daypart-orbit"></span><span class="daypart-horizon"></span></span></span>
+            <span class="daypart-time">23:00–06:00</span><span class="daypart-name">Ночь</span><span class="daypart-short">Частота контакта</span>
+          </button>
+        </div>
+        <div class="daypart-panel" id="daypart-panel-morning" role="tabpanel" aria-labelledby="daypart-tab-morning" tabindex="0">
+          <dl class="daypart-facts">
+              <div><dt>Кто смотрит</dt><dd>Работающие люди, родители, учащиеся и те, кто начинает день дома.</dd></div>
+              <div><dt>Особенности потребления</dt><dd>Низкая вовлечённость в контент: телевизор часто смотрят параллельно со сборами и другими делами.</dd></div>
+              <div><dt>Что смотрят</dt><dd>Новости, прогноз погоды, утренние шоу и информационные программы.</dd></div>
+          </dl>
+          <div class="daypart-benefit"><span>Возможность для бренда</span><p>Быстро привлечь внимание к продукту или сообщению в начале дня.</p><a href="#contact">Подобрать размещение <span aria-hidden="true">↗</span></a></div>
+        </div>
+        <div class="daypart-panel" id="daypart-panel-day" role="tabpanel" aria-labelledby="daypart-tab-day" tabindex="0" hidden>
+          <dl class="daypart-facts">
+              <div><dt>Кто смотрит</dt><dd>Пенсионеры, домохозяйки, фрилансеры, люди со сменным или гибким графиком, а также дети в отдельные часы.</dd></div>
+              <div><dt>Особенности потребления</dt><dd>Спокойный просмотр; общий объём линейного телесмотрения ниже, чем вечером.</dd></div>
+              <div><dt>Что смотрят</dt><dd>Сериалы, повторы, ток-шоу, познавательные и развлекательные программы.</dd></div>
+          </dl>
+          <div class="daypart-benefit"><span>Возможность для бренда</span><p>Эффективный контакт с отдельными социально-демографическими группами.</p><a href="#contact">Подобрать размещение <span aria-hidden="true">↗</span></a></div>
+        </div>
+        <div class="daypart-panel" id="daypart-panel-evening" role="tabpanel" aria-labelledby="daypart-tab-evening" tabindex="0" hidden>
+          <dl class="daypart-facts">
+              <div><dt>Кто смотрит</dt><dd>Люди возвращаются с работы и учёбы, постепенно увеличивается смотрение среди семейной аудитории.</dd></div>
+              <div><dt>Особенности потребления</dt><dd>Вовлечённость и продолжительность просмотра растут.</dd></div>
+              <div><dt>Что смотрят</dt><dd>Региональные и вечерние новости, сериалы, развлекательные программы.</dd></div>
+          </dl>
+          <div class="daypart-benefit"><span>Возможность для бренда</span><p>Охват широкой аудитории в момент перехода от индивидуального к совместному просмотру и усиление запоминаемости рекламного сообщения.</p><a href="#contact">Подобрать размещение <span aria-hidden="true">↗</span></a></div>
+        </div>
+        <div class="daypart-panel" id="daypart-panel-prime" role="tabpanel" aria-labelledby="daypart-tab-prime" tabindex="0" hidden>
+          <dl class="daypart-facts">
+              <div><dt>Кто смотрит</dt><dd>Работающая аудитория, семьи и зрители, которые проводят вечер дома.</dd></div>
+              <div><dt>Особенности потребления</dt><dd>Основной вечерний просмотр: возможность длительного контакта с контентом и совместного просмотра.</dd></div>
+              <div><dt>Что смотрят</dt><dd>Новости, популярные сериалы, развлекательные шоу, фильмы и спортивные трансляции.</dd></div>
+          </dl>
+          <div class="daypart-benefit"><span>Возможность для бренда</span><p>Охват широкой аудитории и сильный контакт в момент её вовлечённости в просмотр.</p><a href="#contact">Подобрать размещение <span aria-hidden="true">↗</span></a></div>
+        </div>
+        <div class="daypart-panel" id="daypart-panel-night" role="tabpanel" aria-labelledby="daypart-tab-night" tabindex="0" hidden>
+          <dl class="daypart-facts">
+              <div><dt>Кто смотрит</dt><dd>Молодая аудитория, «совы», люди с ночным или гибким графиком.</dd></div>
+              <div><dt>Особенности потребления</dt><dd>Аудитория меньше, но отдельные зрители могут дольше оставаться у экрана.</dd></div>
+              <div><dt>Что смотрят</dt><dd>Фильмы, сериалы, повторы передач, ночные новости и развлекательный контент.</dd></div>
+          </dl>
+          <div class="daypart-benefit"><span>Возможность для бренда</span><p>Точечный контакт с аудиторией с нестандартным режимом дня и поддержка частоты контакта.</p><a href="#contact">Подобрать размещение <span aria-hidden="true">↗</span></a></div>
+        </div>
+        <p class="daypart-note">Подбираем время показа с учётом аудитории, контента и доступного инвентаря выбранной площадки.</p>
+      </section>
+
+      <!-- Блок форматов onCTV Vendors и onCTV Apps -->
+      <div class="fmt-section-wrap" id="formats">
+        <div class="fmt-section-header reveal">
+          <h3>Два уровня закупки форматов</h3>
+          <p>Объединяем прямой доступ к операционным системам производителей ТВ и рекламу внутри ведущих стриминговых сервисов</p>
+        </div>
+        <div class="fmt-grid reveal-stagger">
+
+        <div class="fmt-card" role="button" tabindex="0" data-product="vendors" aria-label="Смотреть форматы onCTV Vendors">
+          <div class="fmt-head"><h3>onCTV Vendors</h3><div class="sub">OS-уровень</div></div>
+          <p class="fmt-desc">Реклама размещается на уровне операционной системы или фирменного интерфейса производителя: на главном экране, в меню, рекомендациях, лончере или предустановленных приложениях.</p>
+          <div class="device-frame">
+            <div class="screen">
+              <img class="screen-img" src="homehero.jpg" alt="onCTV Vendors — Home Hero в интерфейсе Smart TV" loading="lazy">
+            </div>
+          </div>
+          <div class="fmt-partners">
+            <span class="fmt-group-label">Производители Smart TV</span>
+            <div class="fmt-logos">
+              <img class="fmt-logo" src="assets/logos/haier.webp" alt="Haier">
+              <img class="fmt-logo" src="assets/logos/xiaomi.webp" alt="Xiaomi">
+              <img class="fmt-logo" src="assets/logos/tcl.png" alt="TCL">
+              <img class="fmt-logo" src="assets/logos/lg.webp" alt="LG">
+            </div>
+            <span class="fmt-group-label">Производители ОС</span>
+            <ul class="fmt-list"><li>Big Fish</li><li>Whale TV</li><li>Wild Red</li></ul>
+          </div>
+          <p class="fmt-meta"><b>Таргетинг:</b> гео, тип экрана, жанр, частота просмотра, приложения, время показа, диагональ</p>
+          <p class="fmt-note">Набор форматов, таргетингов, пикселей, диплинков и параметров отчётности зависит от конкретного производителя, операционной системы, модели устройства и схемы закупки.</p>
+          <p class="fmt-benefit"><b>Что получает рекламодатель:</b> контакт с пользователем до запуска контента, заметный формат на большом экране и возможность работать с инвентарём конкретного производителя или операционной системы.</p>
+          <div class="fmt-cap">Ёмкость: &gt; 350 000 000 показов / месяц</div>
+          <div class="fmt-open-hint">Смотреть все форматы <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+        </div>
+
+        <div class="fmt-card" role="button" tabindex="0" data-product="apps" aria-label="Смотреть форматы onCTV Apps">
+          <div class="fmt-head"><h3>onCTV Apps</h3><div class="sub">In-app-уровень</div></div>
+          <p class="fmt-desc">Реклама показывается внутри приложений на Smart TV и других CTV-устройствах: в онлайн-кинотеатрах, видеосервисах, ТВ-приложениях и агрегаторах контента.</p>
+          <div class="device-frame">
+            <div class="screen">
+              <img class="screen-img" src="assets/onctv-apps-yandex-pay.jpg" alt="onCTV Apps — пример In-Stream рекламы Яндекс Пэй с QR-кодом" loading="lazy">
+            </div>
+          </div>
+          <div class="fmt-groups">
+            <div class="fmt-group"><span class="fmt-group-label">TV-Streaming</span><ul class="fmt-list"><li>Switch-Roll</li><li>Patch-Roll</li></ul></div>
+            <div class="fmt-group"><span class="fmt-group-label">VOD (Video on Demand)</span><ul class="fmt-list"><li>Pre-Roll</li></ul></div>
+          </div>
+          <p class="fmt-meta"><b>Таргетинг:</b> гео, соц-дем, канал, история контента за 30 дней, время показа, диагональ, регулируемый частотный кап</p>
+          <p class="fmt-note">Доступность конкретного формата зависит от приложения, источника инвентаря и рекламного SDK. Нельзя представлять весь список форматов как одновременно доступный во всех приложениях.</p>
+          <p class="fmt-benefit"><b>Что получает рекламодатель:</b> доступ к контентной среде, настройку размещений по приложениям и возможность анализировать кампанию с учётом доступных технических параметров и событий.</p>
+          <div class="fmt-cap">Ёмкость: &gt; 500 000 000 показов / месяц</div>
+          <div class="fmt-open-hint">Смотреть все форматы <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+        </div>
+
+        </div>
+      </div>
+    </div>
+  </section>
+
+<!-- ===================== 03 РОЛЬ CTV В МЕДИАМИКСЕ ===================== -->
+  <section class="section section--dark" id="usecases">
+    <div class="wrap">
+      <div class="section-head reveal">
+        <div class="chapter-mark"><span class="num">03</span><span class="divider"></span><span>Роль в медиамиксе</span></div>
+        <h2>Основные задачи Smart TV</h2>
+        <p class="lead">Три причины добавить рекламу в ОС Smart TV в медиамикс: первый контакт с пользователем, гибкое размещение на большом экране и дополнительный охват за пределами линейного ТВ и OTT-рекламы.</p>
+      </div>
+      <div class="uc-grid usecase-rows reveal-stagger">
+        <div class="uc-card"><div class="uc-num">01</div><div class="usecase-copy"><h4>Первый контакт с аудиторией</h4><p>Форматы в интерфейсе Smart TV появляются на главном экране устройства до запуска приложений. Это первая точка контакта с пользователем в момент включения телевизора.</p></div></div>
+        <div class="uc-card"><div class="uc-num">02</div><div class="usecase-copy"><h4>Большой экран — ниже порог входа</h4><p>Smart TV позволяет размещать рекламу на большом экране телевизора с гибким бюджетом, форматами и объёмом кампании. Это делает размещение доступным для брендов с разными задачами и уровнями инвестиций.</p></div></div>
+        <div class="uc-card"><div class="uc-num">03</div><div class="usecase-copy"><h4>Дополнительный охват к ТВ и OTT</h4><p>Размещение на уровне ОС расширяет охват за пределы линейного ТВ и рекламы внутри OTT-приложений. Оно позволяет обращаться к пользователям Smart TV, включая зрителей с платными подписками без рекламы внутри контента.</p></div></div>
+      </div>
+    </div>
+  </section>
+
+<!-- ===================== 06 ЗАМЕР И КАЧЕСТВО ===================== -->
+  <section class="section section--darker" id="verification">
+    <div class="wrap">
+      <div class="section-head reveal">
+        <div class="chapter-mark"><span class="num">04</span><span class="divider"></span><span>Аналитика и исследования</span></div>
+        <h2>Измеримость и контроль качества</h2>
+        <p class="lead">От базовой медийной отчётности до исследований влияния рекламы. До старта согласуем доступные уровни измерения, KPI и методику оценки результата.</p>
+      </div>
+      <div class="measure reveal">
+        <div class="mlist">
+          <div class="mrow"><h4>Медийная отчётность<small>В каждой кампании</small></h4><p>Показы, охват, частота и другие доступные показатели. В зависимости от источника дополнительно предоставляем данные по кликам или переходам, географии, устройствам, ОС и приложениям.</p></div>
+          <div class="mrow"><h4>Brand Lift<small>Изменение брендовых метрик</small></h4><p>Кастомные CAWI-исследования показывают, как реклама повлияла на знание бренда, отношение к нему, запоминаемость рекламы и намерение приобрести продукт.</p></div>
+          <div class="mrow"><h4>Traffic Lift<small>Прирост визитов и действий</small></h4><p>Сравниваем активность тестовой и контрольной групп и оцениваем прирост визитов на сайт после контакта с рекламой.<em>Методика, объём панели и условия проведения согласуются под задачи кампании.</em></p></div>
+          <div class="mrow"><h4>App Attribution<small>Установки и действия в приложении</small></h4><p>Связываем показы рекламы с установками и событиями в приложении через Adjust, AppsFlyer и другие поддерживаемые трекеры.<em>Возможность замера зависит от выбранного источника, формата и технической интеграции.</em></p></div>
+          <div class="mrow"><h4>Cross-device<small>Связь между экранами</small></h4><p>Сопоставляем контакт с рекламой на телевизоре с последующими действиями на других устройствах домохозяйства.<em>Методика использует обезличенное вероятностное сопоставление и не идентифицирует конкретного человека.</em></p></div>
+        </div>
+        <div class="quality">
+          <img class="quality-logo" src="assets/onctv-logo-white.svg" alt="onCTV by Adspector" width="569" height="226" loading="lazy">
+          <h3>Контролируем качество и прозрачность размещения</h3>
+          <ul>
+            <li><span class="quality-num" aria-hidden="true">01</span><span><b>Верификация.</b> Подключаем независимых верификаторов, если это предусмотрено выбранным источником и форматом.</span></li>
+            <li><span class="quality-num" aria-hidden="true">02</span><span><b>Антифрод.</b> Проверяем трафик и исключаем выявленные невалидные показы, ботов, эмуляторы и подозрительные устройства.</span></li>
+            <li><span class="quality-num" aria-hidden="true">03</span><span><b>Прозрачность.</b> В отчёте отображаем доступные данные по вендору, ОС, приложению и другим параметрам размещения.</span></li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================== 07 КЕЙС ===================== -->
+  <section class="section section--dark" id="case">
+    <div class="wrap">
+      <div class="section-head reveal">
+        <div class="chapter-mark"><span class="num">05</span><span class="divider"></span><span>Кейсы</span></div>
+        <h2>Кейсы</h2>
+        <h3 class="case-project-title">Tutu.ru: как CTV приводит людей на сайт</h3>
+        <p class="lead">За 38 дней кампания на Smart TV дала 19 млн показов. Модель атрибуции сопоставила с ними сотни тысяч визитов на сайт, в том числе отложенных.</p>
+      </div>
+      <div class="case-grid">
+        <div class="case-nums reveal-stagger">
+          <div class="cn"><b>19<small>млн</small></b><span>показов CTV за 38 дней</span></div>
+          <div class="cn"><b>800<small>тыс.</small></b><span>отложенных визитов на сайт, сопоставленных с показами</span></div>
+          <div class="cn"><b>450<small>тыс.</small></b><span>уникальных визитов</span></div>
+          <div class="cn"><b>&gt; 50<small>%</small></b><span>визитов пришли в первые 4 дня после показа</span></div>
+        </div>
+        <div class="case-story reveal">
+          <div class="case-who">Tutu.ru <span>Трэвел</span></div>
+          <p><b>Задача.</b> Проверить, приводит ли реклама на телевизоре пользователей на сайт, и измерить этот эффект, а не просто охват.</p>
+          <p><b>Решение.</b> Размещение на Smart TV и кросс-девайс атрибуция. Модель сопоставила показы на телевизоре с последующими визитами на сайт, включая отложенные.</p>
+          <div class="cum">
+            <div class="cum-lbl">Какая доля атрибутированных визитов пришла к моменту после показа</div>
+            <div class="cum-bars">
+              <div class="cum-col"><b>~30%</b><i style="--h:30%"></i></div>
+              <div class="cum-col"><b>&gt; 50%</b><i style="--h:52%"></i></div>
+              <div class="cum-col"><b>100%</b><i style="--h:100%"></i></div>
+            </div>
+            <div class="cum-axis"><span>за 24 часа</span><span>за 4 дня</span><span>за 38 дней</span></div>
+          </div>
+          <p class="case-src">Источник: Adspector × Tutu.ru, материалы кейса onCTV</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================== 06 ВЫГОДА ===================== -->
+  <section class="section section--darker" id="benefit">
+    <div class="wrap">
+      <div class="section-head benefit-section-head reveal">
+        <div class="chapter-mark"><span class="num">06</span><span class="divider"></span><span>Коммерческая выгода</span></div>
+        <div class="benefit-offer-frame">
+          <h2>Оптимизируем ваши условия, предложив лучшую стоимость</h2>
+        </div>
+        <p class="benefit-offer-copy">Есть предложение по размещению в CTV от другого селлера? Покажите его нам — оптимизируем расчёт и предложим более выгодные условия.</p>
+      </div>
+
+      <h3 class="benefit-advantages-title reveal">Наши преимущества</h3>
+      <div class="benefit-grid reveal-stagger">
+        <div class="benefit-card">
+          <div class="benefit-card-icon"><svg width="24" height="24" viewBox="0 0 24 24" fill="none"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+          <h4>Цена</h4>
+          <p>Работаем с производителями телевизоров и стриминговыми сервисами напрямую, без посредников. Вы получаете прозрачный CPM от Adspector как от официального селлера.</p>
+        </div>
+        <div class="benefit-card">
+          <div class="benefit-card-icon"><svg width="24" height="24" viewBox="0 0 24 24" fill="none"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+          <h4>Эффективность</h4>
+          <p>Формируем оптимальный сплит инструментов для максимального совокупного охвата и выполнения поставленных KPI.</p>
+        </div>
+        <div class="benefit-card">
+          <div class="benefit-card-icon"><svg width="24" height="24" viewBox="0 0 24 24" fill="none"><path d="M9 12l2 2 4-4m6 2a9 9 0 1 1-18 0 9 9 0 0 1 18 0z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+          <h4>Качество</h4>
+          <p>Верификация размещения независимыми верификаторами и подробная отчётность по итогам кампании.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+
+  <!-- ===================== CONTACT ===================== -->
+  <section class="section contact-section" id="contact" aria-labelledby="contact-title">
+    <div class="eclipse" aria-hidden="true">
+      <div class="c1"></div>
+      <div class="c2"></div>
+    </div>
+    <div class="wrap">
+      <h2 class="contact-title reveal" id="contact-title">С чего начать?</h2>
+      <div class="contact-grid">
+        <div class="reveal">
+          <ol class="steps3">
+            <li><div><h4>Бриф</h4><p>Расскажите о задаче на РК — охват и построение знания, трафик или установки. Укажите бюджет и сроки предоставления расчёта.</p></div></li>
+            <li><div><h4>Оценка предложения</h4><p>Сформируем медиаплан с релевантными форматами и таргетингами, а также предложим релевантную схему оценки кампании. Предложение направим в течение рабочего дня.</p></div></li>
+            <li><div><h4>Старт размещения</h4><p>Маркировка и техническая настройка размещения на стороне Adspector. Отчётность предоставляем как по итогам РК, так и на протяжении всей кампании.</p></div></li>
+          </ol>
+        </div>
+        <div class="contact-card reveal">
+          <h3>Подберём форматы в onCTV под ваши задачи</h3>
+          <p class="lead">Напишите нам, чтобы узнать подробности и подготовить предложение</p>
+          <div class="mail"><code id="mail">accounts@<wbr>adspector.ru</code><button class="btn btn-primary btn--compact" id="copy" type="button">Скопировать</button></div>
+          <a class="btn btn-ghost" id="mediakit" href="assets/onctv-mediakit.pdf" download="onCTV-mediakit.pdf">Скачать медиакит (PDF)</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+
+<div class="tv-overlay" id="tvOverlay" aria-hidden="true">
+  <div class="tv-overlay-backdrop" data-close-tv></div>
+  <div class="tv-overlay-screen" id="tvOverlayScreen" role="dialog" aria-modal="true" aria-labelledby="tvOverlayTitle">
+    <button class="tv-overlay-close" data-close-tv aria-label="Закрыть">×</button>
+    <div class="tv-overlay-scroll">
+      <div class="tv-overlay-head">
+        <span class="tv-overlay-eyebrow" id="tvOverlayEyebrow"></span>
+        <h3 id="tvOverlayTitle"></h3>
+      </div>
+      <div class="tv-overlay-grid" id="tvOverlayGrid"></div>
+    </div>
+  </div>
+</div>
+
+<footer id="siteFooter">
+  <div class="wrap">
+    <div class="footer-row">
+      <a class="footer-brand" href="#hero">
+        <svg class="mark" style="color:var(--pink)"><use href="#onctv-mark"/></svg>
+        <span>onCTV by Adspector</span>
+      </a>
+      <nav class="footer-nav">
+        <a href="#whatis">Преимущества</a>
+        <a href="#cjm">Точки контакта</a>
+        <a href="#usecases">Задачи и цели</a>
+        <a href="#verification">Аналитика</a>
+        <a href="#case">Кейсы</a>
+        <a href="#benefit">Условия</a>
+        <a href="#contact">Контакты</a>
+      </nav>
+    </div>
+    <p class="footer-copy">© 2026 onCTV by Adspector</p>
+  </div>
+</footer>
+
+<script>
+(function(){
+  /* Keep prepositions with the following word, including across inline markup. */
+  var russianPrepositions = ['в зависимости от','по сравнению с','в соответствии с','в отличие от','в связи с','вместе с','несмотря на','невзирая на','в течение','в продолжение','в отношении','в результате','в качестве','в рамках','по поводу','по мере','из-за','из-под','без','безо','благодаря','близ','в','во','вблизи','ввиду','вдоль','взамен','включая','вместо','вне','внутри','возле','вокруг','вопреки','впереди','вслед','вследствие','для','до','за','из','изо','исключая','к','ко','касательно','кроме','меж','между','мимо','на','над','надо','накануне','наперекор','наподобие','напротив','насчёт','насчет','о','об','обо','около','от','ото','относительно','перед','передо','по','поверх','под','подо','позади','помимо','поперёк','поперек','после','посреди','посредством','при','про','против','путём','путем','ради','с','со','сверх','свыше','сквозь','согласно','спустя','среди','у','через','чрез','in','on','of','to','for','with','by','from','at'];
+  var prepositionPattern = new RegExp('(^|[^\\p{L}\\p{N}_-])(' + russianPrepositions.sort(function(a,b){return b.length-a.length;}).map(function(p){return p.replace(/ /g,'[ \\t\\r\\n\\u00a0]+');}).join('|') + ')([ \\t\\r\\n\\u00a0]+)(?=\\S)', 'giu');
+  function gluePrepositions(root){
+    var groups = new Map(), cache = new WeakMap();
+    function blockFor(element){
+      if(cache.has(element)) return cache.get(element);
+      var block = element;
+      while(block.parentElement && /^(inline|contents)$/.test(getComputedStyle(block).display)) block = block.parentElement;
+      cache.set(element, block); return block;
+    }
+    var walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT, {acceptNode:function(node){return node.parentElement && !node.parentElement.closest('script,style,noscript,pre,code,textarea,svg,[contenteditable]') ? NodeFilter.FILTER_ACCEPT : NodeFilter.FILTER_REJECT;}});
+    var node;
+    while((node=walker.nextNode())){var block=blockFor(node.parentElement);if(!groups.has(block))groups.set(block,[]);groups.get(block).push(node);}
+    groups.forEach(function(nodes){
+      var text=nodes.map(function(n){return n.data;}).join(''), edits=new Map(), match;
+      prepositionPattern.lastIndex=0;
+      while((match=prepositionPattern.exec(text))){
+        var start=match.index+match[1].length, segment=match[2]+match[3], spaces, spacePattern=/[ \t\r\n\u00a0]+/g;
+        while((spaces=spacePattern.exec(segment))){for(var j=0;j<spaces[0].length;j++)edits.set(start+spaces.index+j,j===0?'\u00a0':'');}
+      }
+      if(!edits.size)return;
+      var offset=0;nodes.forEach(function(n){var next='';for(var i=0;i<n.data.length;i++){var position=offset+i;next+=edits.has(position)?edits.get(position):n.data[i];}offset+=n.data.length;if(next!==n.data)n.data=next;});
+    });
+  }
+  gluePrepositions(document.body);
+
+  /* Keep the longer client list moving at a readable, constant speed. */
+  var clientTrack=document.querySelector('.clients-track');
+  function updateClientSpeed(){if(clientTrack)clientTrack.style.setProperty('--clients-duration',Math.max(22,clientTrack.scrollWidth/2/42)+'s');}
+  document.fonts.ready.then(updateClientSpeed);
+  if('ResizeObserver' in window && clientTrack)new ResizeObserver(updateClientSpeed).observe(clientTrack);
+
+  var header = document.getElementById('siteHeader');
+  var navToggle = document.querySelector('.nav-toggle');
+  var primaryNav = document.getElementById('primaryNav');
+  function setNavOpen(open){
+    header.classList.toggle('nav-open', open);
+    navToggle.setAttribute('aria-expanded', open ? 'true' : 'false');
+    navToggle.setAttribute('aria-label', open ? 'Закрыть меню' : 'Открыть меню');
+  }
+  navToggle.addEventListener('click', function(){ setNavOpen(navToggle.getAttribute('aria-expanded') !== 'true'); });
+  primaryNav.querySelectorAll('a').forEach(function(link){
+    link.addEventListener('click', function(){
+      var target = document.querySelector(link.getAttribute('href'));
+      var wasOpen = header.classList.contains('nav-open');
+      setNavOpen(false);
+      if(wasOpen && target){ target.setAttribute('tabindex', '-1'); target.focus({preventScroll:true}); }
+    });
+  });
+  document.addEventListener('click', function(event){ if(!header.contains(event.target)) setNavOpen(false); });
+  document.addEventListener('keydown', function(event){
+    if(event.key === 'Escape' && header.classList.contains('nav-open')){ setNavOpen(false); navToggle.focus(); }
+  });
+  window.addEventListener('resize', function(){ if(window.innerWidth > 980) setNavOpen(false); });
+
+  var onScroll = function(){
+    if(window.scrollY > 24){ header.classList.add('scrolled'); }
+    else{ header.classList.remove('scrolled'); }
+  };
+  document.addEventListener('scroll', onScroll, {passive:true});
+  onScroll();
+
+  var targets = document.querySelectorAll('.reveal, .reveal-stagger');
+  if('IntersectionObserver' in window){
+    var io = new IntersectionObserver(function(entries){
+      entries.forEach(function(e){
+        if(e.isIntersecting){ e.target.classList.add('in'); io.unobserve(e.target); }
+      });
+    }, {threshold:.16, rootMargin:'0px 0px -8% 0px'});
+    targets.forEach(function(t){ io.observe(t); });
+  } else {
+    targets.forEach(function(t){ t.classList.add('in'); });
+  }
+
+  function animateCount(el){
+    var to = parseFloat(el.getAttribute('data-to'));
+    var decimals = parseInt(el.getAttribute('data-decimals') || '0', 10);
+    var prefix = el.getAttribute('data-prefix') || '';
+    var suffix = el.getAttribute('data-suffix') || '';
+    var numberFormat = new Intl.NumberFormat('ru-RU', {minimumFractionDigits:decimals, maximumFractionDigits:decimals});
+    var duration = 1500;
+    var startTime = null;
+    function step(ts){
+      if(!startTime) startTime = ts;
+      var p = Math.min((ts - startTime) / duration, 1);
+      var eased = 1 - Math.pow(1 - p, 3);
+      var val = numberFormat.format(to * eased);
+      el.textContent = prefix + val + suffix;
+      if(p < 1){ requestAnimationFrame(step); }
+    }
+    requestAnimationFrame(step);
+  }
+  var countTargets = document.querySelectorAll('[data-count]');
+  if('IntersectionObserver' in window){
+    var countIo = new IntersectionObserver(function(entries){
+      entries.forEach(function(e){
+        if(e.isIntersecting){ animateCount(e.target); countIo.unobserve(e.target); }
+      });
+    }, {threshold:.5});
+    countTargets.forEach(function(t){ countIo.observe(t); });
+  } else {
+    countTargets.forEach(function(t){ animateCount(t); });
+  }
+
+  /* Daypart timeline: one details panel at a time, with keyboard navigation. */
+  var dayTabs = Array.from(document.querySelectorAll('.daypart-tab'));
+  function selectDay(tab){
+    dayTabs.forEach(function(item){
+      var selected = item === tab;
+      item.setAttribute('aria-selected', selected ? 'true' : 'false');
+      item.tabIndex = selected ? 0 : -1;
+      document.getElementById(item.getAttribute('aria-controls')).hidden = !selected;
+    });
+  }
+  dayTabs.forEach(function(tab, index){
+    tab.addEventListener('click', function(){ selectDay(tab); });
+    tab.addEventListener('keydown', function(event){
+      var next;
+      if(event.key === 'ArrowRight') next = (index + 1) % dayTabs.length;
+      else if(event.key === 'ArrowLeft') next = (index + dayTabs.length - 1) % dayTabs.length;
+      else if(event.key === 'Home') next = 0;
+      else if(event.key === 'End') next = dayTabs.length - 1;
+      else return;
+      event.preventDefault();
+      selectDay(dayTabs[next]);
+      dayTabs[next].focus({preventScroll:true});
+      dayTabs[next].scrollIntoView({behavior:'instant', block:'nearest', inline:'nearest'});
+    });
+  });
+
+  var copyBtn = document.getElementById('copy');
+  if(copyBtn){
+    copyBtn.addEventListener('click', function(){
+      var mailEl = document.getElementById('mail');
+      function done(){ copyBtn.textContent = 'Скопировано'; setTimeout(function(){ copyBtn.textContent = 'Скопировать'; }, 1800); }
+      function select(){
+        var r = document.createRange(); r.selectNodeContents(mailEl);
+        var s = window.getSelection(); s.removeAllRanges(); s.addRange(r);
+        copyBtn.textContent = 'Выделено, нажмите ⌘C';
+      }
+      try{ navigator.clipboard.writeText(mailEl.textContent).then(done, select); }catch(e){ select(); }
+    });
+  }
+
+
+  var FORMATS = {
+    vendors: {
+      eyebrow: 'onCTV Vendors · OS-уровень',
+      title: 'Форматы по производителям',
+      groups: [
+        {
+          vendor: 'Haier', logo: 'assets/logos/haier.webp',
+          intro: 'китайский производитель бытовой техники и телевизоров. Инвентарь — в приложении Haier Evo TV. Поддерживает пиксели на показ всех известных верификаторов.',
+          formats: [
+            { name:'Banner Scroller', desc:'Баннер в центре главной страницы приложения Haier Evo TV — максимальная видимость у владельцев устройств Haier. Баннер кликабельный, вариант перехода выбирается под кампанию.', click:['Карточка клиента в Google Play на Smart TV','Сайт клиента','Промежуточный лендинг с УТП и QR-кодом (от клиента нужны текст и фон)'], targeting:'Не настраиваются, ГЕО — вся РФ', verify:'Показ — любой; клик — в кодированном виде', shot:'Haier.jpg' }
+          ]
+        },
+        {
+          vendor: 'Xiaomi', logo: 'assets/logos/xiaomi.webp',
+          intro: 'китайский производитель электроники, телевизоры работают с фирменной оболочкой PatchWall. Все форматы идут на всю РФ без таргетингов. Пиксель на показ принимается только от Adriver.',
+          formats: [
+            { name:'PatchWall Homepage', desc:'Баннер на первой видимой странице платформы. Показывается вместе с роликом, который запускается при наведении.', click:'Приложение на Smart TV или браузер', targeting:'Не настраиваются, ГЕО — вся РФ', verify:'Клик — любой; показ — только Adriver', shot:'assets/xiaomi-patchwall-homepage.png' },
+            { name:'Inner Pages Banner', desc:'Баннер на внутренних страницах платформы (фильмы, сериалы).', click:'Приложение на Smart TV или браузер', targeting:'Не настраиваются, ГЕО — вся РФ', verify:'Клик — любой; показ — только Adriver', shot:'Xiaomi_inner_pages.jpg' },
+            { name:'Branding + Banner', desc:'Эксклюзивный формат onCTV: брендирование страницы VIP в ОС Xiaomi — часть первого контакта пользователя с устройством.', click:'Посадочная страница клиента в браузере', targeting:'Не настраиваются, ГЕО — вся РФ', verify:'Клик — любой; показ — только Adriver', shot:'Xiaomi_Branding.jpg' }
+          ]
+        },
+        {
+          vendor: 'TCL', logo: 'assets/logos/tcl.png',
+          intro: 'китайский производитель телевизоров, один из крупнейших в мире по объёму поставок. Инвентарь расположен в операционной системе TCL: на главной странице TCL Channel, в лаунчере и при выходе из браузера. Все форматы таргетируются по ГЕО и диагонали.',
+          formats: [
+            { name:'Homepage Banner Adslot', desc:'Баннер на главной странице TCL Channel в ОС TCL.', click:'Приложение в сторе TCL или сайт', targeting:'ГЕО, диагональ устройства', verify:'Пиксель любого верификатора', shot:'Homepage banner adslot (second priority)_2.jpg' },
+            { name:'Banner in Launcher', desc:'Баннер в карусели перед входом в приложение TCL Channel — первый и самый заметный плейсмент.', click:'Приложение в сторе TCL или сайт', targeting:'ГЕО, диагональ устройства', verify:'Пиксель любого верификатора', shot:'in_Launcher.jpg' },
+            { name:'Banner in browser', desc:'Баннер в карусели, которая появляется при выходе из браузера (Browshere или Яндекс).', click:'Приложение в сторе TCL или сайт', targeting:'ГЕО, диагональ устройства', verify:'Пиксель любого верификатора', shot:'in_browser.jpg' },
+            { name:'Homepage Video', desc:'Видео проигрывается в небольшом плеере на главной странице. По клику с пульта раскрывается на весь экран.', click:'Раскрытие на весь экран', targeting:'ГЕО, диагональ устройства', verify:'Пиксель любого верификатора', shot:'tcl_homepage_video.jpg' }
+          ]
+        },
+        {
+          vendor: 'LG', logo: 'assets/logos/lg.webp',
+          intro: 'южнокорейский производитель техники, смарт-телевизоры работают на собственной ОС webOS. Инвентарь — в самой ОС LG, а не в приложении LG Channels.',
+          formats: [
+            { name:'HomeHero', desc:'Слот на стартовой странице ОС LG. Может быть как видео, так и баннер.', click:'Посадочная страница клиента в браузере или установленное приложение', targeting:'ГЕО, соц-дем, диагонали, жанры, тип экрана', verify:'Пиксель любого верификатора', shot:'homehero.jpg' }
+          ]
+        }
+      ]
+    },
+    apps: {
+      eyebrow: 'onCTV Apps · In-app-уровень',
+      title: 'Форматы onCTV Apps',
+      groups: [
+        {
+          formats: [
+            {
+              name: 'In-Stream форматы (Streaming TV & VOD)',
+              open: true,
+              desc: 'Показ рекламы происходит как в Streaming TV с форматами Switch-Roll и Patch-Roll, так и в VOD (Video on demand) с Pre-Roll.',
+              click: 'Сайт клиента в браузере или переход в приложение / без перехода',
+              targeting: 'ГЕО, соц-дем, канал, история контента за 30 дней, время показа, диагональ, частотный кап',
+              verify: 'Пиксель любого верификатора',
+              shot: 'assets/onctv-apps-start.jpg'
+            }
+          ]
+        }
+      ]
+    }
+  };
+
+  var tvOverlay = document.getElementById('tvOverlay');
+  var tvScreen = document.getElementById('tvOverlayScreen');
+  var tvClose = tvOverlay.querySelectorAll('[data-close-tv]');
+  var tvEyebrow = document.getElementById('tvOverlayEyebrow');
+  var tvTitle = document.getElementById('tvOverlayTitle');
+  var tvGrid = document.getElementById('tvOverlayGrid');
+  var tvScroll = document.querySelector('.tv-overlay-scroll');
+  var tvOpener = null;
+  var tvStartRect = null;
+
+  function tvTargetRect(){
+    var vw = window.innerWidth, vh = window.innerHeight;
+    var maxW = 1100;
+    var maxH = 880;
+
+    var marginH = Math.max(16, Math.min(48, vw * 0.05));
+    var w = Math.min(maxW, vw - marginH * 2);
+    var left = Math.round((vw - w) / 2);
+
+    var marginV = Math.max(20, Math.min(36, vh * 0.04));
+    var h = Math.min(maxH, vh - marginV * 2);
+    var top = Math.round((vh - h) / 2);
+
+    return { top: top, left: left, width: w, height: h };
+  }
+
+  function openTv(product, card){
+    var data = FORMATS[product];
+    if(!data) return;
+    tvOpener = card;
+    tvStartRect = card.querySelector('.device-frame').getBoundingClientRect();
+    if(tvScroll) tvScroll.scrollTop = 0;
+
+    tvEyebrow.textContent = data.eyebrow;
+    tvTitle.textContent = data.title;
+    if(data.groups){
+      tvGrid.classList.add('is-doc');
+      tvGrid.innerHTML = data.groups.map(function(g){
+        var rows = g.formats.map(function(f){
+          var clickHtml = f.click ? (Array.isArray(f.click)
+            ? '<ul class="tv-format-click-list">' + f.click.map(function(c){ return '<li>' + c + '</li>'; }).join('') + '</ul>'
+            : '<b>' + f.click + '</b>') : '';
+          var shotHtml = f.shot
+            ? '<img class="tv-format-shot-img" src="' + f.shot + '" alt="' + f.name + '">'
+            : '<div class="tv-format-shot-ph"><span>Скриншот добавится позже</span></div>';
+          var metaHtml = (f.click || f.targeting || f.verify)
+            ? '<div class="tv-format-meta">'
+              + (f.click ? '<div><span>Клик ведёт</span>' + clickHtml + '</div>' : '')
+              + (f.targeting ? '<div><span>Таргетинги</span><b>' + f.targeting + '</b></div>' : '')
+              + (f.verify ? '<div><span>Верификация</span><b>' + f.verify + '</b></div>' : '')
+              + '</div>'
+            : '';
+          var openClass = f.open ? ' is-open' : '';
+          var ariaExpanded = f.open ? 'true' : 'false';
+          return '<div class="tv-format-row' + openClass + '">'
+            + '<button class="tv-format-toggle" type="button" aria-expanded="' + ariaExpanded + '">'
+            + '<h4>' + f.name + '</h4>'
+            + '<svg class="tv-format-chevron" width="18" height="18" viewBox="0 0 18 18" fill="none"><path d="M4 7l5 5 5-5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>'
+            + '</button>'
+            + '<div class="tv-format-body"><div class="tv-format-body-inner">'
+            + '<p class="tv-format-desc">' + f.desc + '</p>'
+            + '<div class="tv-format-shot">' + shotHtml + '</div>'
+            + metaHtml
+            + '</div></div></div>';
+        }).join('');
+        var headHtml = (g.vendor || g.intro)
+          ? '<div class="tv-vendor-head">'
+            + (g.logo ? '<div class="tv-vendor-logo-chip"><img src="' + g.logo + '" alt="' + (g.vendor || '') + '"></div>' : '')
+            + '<p class="tv-vendor-intro">' + (g.vendor ? '<b>' + g.vendor + '</b>' : '') + (g.vendor && g.intro ? ' — ' : '') + (g.intro || '') + '</p>'
+            + '</div>'
+          : '';
+        return '<div class="tv-vendor">'
+          + headHtml
+          + '<div class="tv-format-list">' + rows + '</div>'
+          + '</div>';
+      }).join('');
+      tvGrid.querySelectorAll('.tv-format-toggle').forEach(function(btn){
+        btn.addEventListener('click', function(){
+          var row = btn.closest('.tv-format-row');
+          var open = row.classList.toggle('is-open');
+          btn.setAttribute('aria-expanded', open ? 'true' : 'false');
+          if(open){
+            setTimeout(function(){
+              row.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+            }, 180);
+          }
+        });
+      });
+    } else {
+      tvGrid.classList.remove('is-doc');
+      tvGrid.innerHTML = data.items.map(function(item){
+        var name = typeof item === 'string' ? item : item.name;
+        var shot = typeof item === 'object' ? item.shot : null;
+        var desc = typeof item === 'object' ? item.desc : null;
+        var shotHtml = shot
+          ? '<img class="tv-format-tile-img" src="' + shot + '" alt="' + name + '">'
+          : '<span>Скриншот добавится позже</span>';
+        var descHtml = desc ? '<p class="tv-format-tile-desc">' + desc + '</p>' : '';
+        return '<div class="tv-format-tile">'
+          + '<div class="shot">' + shotHtml + '</div>'
+          + '<div class="label">' + name + '</div>'
+          + descHtml
+          + '</div>';
+      }).join('');
+    }
+
+    gluePrepositions(tvOverlay);
+
+    tvScreen.style.transition = 'none';
+    tvScreen.style.top = tvStartRect.top + 'px';
+    tvScreen.style.left = tvStartRect.left + 'px';
+    tvScreen.style.width = tvStartRect.width + 'px';
+    tvScreen.style.height = tvStartRect.height + 'px';
+
+    tvOverlay.classList.add('open');
+    tvOverlay.setAttribute('aria-hidden', 'false');
+    document.body.style.overflow = 'hidden';
+
+    requestAnimationFrame(function(){
+      tvScreen.getBoundingClientRect();
+      tvScreen.style.transition = 'top .6s var(--ease-spring-soft), left .6s var(--ease-spring-soft), width .6s var(--ease-spring-soft), height .6s var(--ease-spring-soft)';
+      var target = tvTargetRect();
+      tvScreen.style.top = target.top + 'px';
+      tvScreen.style.left = target.left + 'px';
+      tvScreen.style.width = target.width + 'px';
+      tvScreen.style.height = target.height + 'px';
+    });
+    setTimeout(function(){ tvScreen.classList.add('content-in'); }, 260);
+
+    tvOverlay.querySelector('.tv-overlay-close').focus();
+  }
+
+  function closeTv(){
+    if(!tvOverlay.classList.contains('open')) return;
+    tvScreen.classList.remove('content-in');
+    if(tvStartRect){
+      tvScreen.style.transition = 'top .5s var(--ease-spring-soft), left .5s var(--ease-spring-soft), width .5s var(--ease-spring-soft), height .5s var(--ease-spring-soft), opacity .4s var(--ease-spring-soft)';
+      tvScreen.style.top = tvStartRect.top + 'px';
+      tvScreen.style.left = tvStartRect.left + 'px';
+      tvScreen.style.width = tvStartRect.width + 'px';
+      tvScreen.style.height = tvStartRect.height + 'px';
+      tvScreen.style.opacity = '0';
+    }
+    tvOverlay.classList.remove('open');
+    tvOverlay.setAttribute('aria-hidden', 'true');
+    document.body.style.overflow = '';
+    if(tvOpener && typeof tvOpener.focus === 'function'){ tvOpener.focus(); }
+    setTimeout(function(){ tvScreen.style.opacity = ''; }, 650);
+  }
+
+  document.querySelectorAll('.fmt-card[data-product]').forEach(function(card){
+    card.addEventListener('click', function(){ openTv(card.getAttribute('data-product'), card); });
+    card.addEventListener('keydown', function(e){
+      if(e.key === 'Enter' || e.key === ' '){ e.preventDefault(); openTv(card.getAttribute('data-product'), card); }
+    });
+  });
+  tvClose.forEach(function(el){ el.addEventListener('click', closeTv); });
+  document.addEventListener('keydown', function(e){
+    if(e.key === 'Escape' && tvOverlay.classList.contains('open')){ closeTv(); }
+  });
+  window.addEventListener('resize', function(){
+    if(tvOverlay.classList.contains('open')){
+      var target = tvTargetRect();
+      tvScreen.style.top = target.top + 'px';
+      tvScreen.style.left = target.left + 'px';
+      tvScreen.style.width = target.width + 'px';
+      tvScreen.style.height = target.height + 'px';
+    }
+  });
+
+  /* Hero carousel: independent OS/OTT groups and a six-second visible-time progress. */
+  (function(){
+    var wrap = document.querySelector('.hero-tv-wrap');
+    if(!wrap) return;
+    var slides = Array.from(wrap.querySelectorAll('.tv-slide'));
+    var dots = Array.from(wrap.querySelectorAll('.tv-dot'));
+    var dotGroup = wrap.querySelector('.tv-nav-dots');
+    var pauseButton = wrap.querySelector('.tv-play-toggle');
+    var display = wrap.querySelector('.tv-display');
+    var appRow = wrap.querySelector('.tv-app-row');
+    var reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
+    var groups = {os:[], ott:[]};
+    slides.forEach(function(slide, index){ groups[slide.dataset.level].push(index); });
+    var positions = {os:0, ott:0};
+    var level = 'os';
+    var duration = 6000;
+    var elapsed = 0;
+    var lastTime = performance.now();
+    var visible = true;
+    var paused = reducedMotion.matches;
+    var activeFill = null;
+
+    function updateProgress(){
+      if(activeFill) activeFill.style.transform = 'scaleX(' + Math.min(elapsed / duration, 1) + ')';
+    }
+    function render(){
+      var index = groups[level][positions[level]];
+      slides.forEach(function(slide, i){
+        slide.classList.toggle('is-active', i === index);
+        slide.setAttribute('aria-hidden', i === index ? 'false' : 'true');
+      });
+      dots.forEach(function(dot, i){
+        dot.hidden = dot.dataset.level !== level;
+        dot.classList.toggle('is-active', i === index);
+        if(i === index) dot.setAttribute('aria-current', 'true');
+        else dot.removeAttribute('aria-current');
+        dot.querySelector('.tv-dot-fill').style.transform = 'scaleX(0)';
+      });
+      activeFill = dots[index].querySelector('.tv-dot-fill');
+      wrap.querySelectorAll('[data-jump],[data-switch]').forEach(function(button){
+        var selected = (button.dataset.jump || button.dataset.switch) === level;
+        button.classList.toggle('is-active', selected);
+        if(button.hasAttribute('data-switch')) button.setAttribute('aria-selected', selected ? 'true' : 'false');
+        else button.setAttribute('aria-pressed', selected ? 'true' : 'false');
+      });
+      appRow.classList.toggle('is-active', level === 'ott');
+      dotGroup.setAttribute('aria-label', level === 'os' ? 'Примеры OS-уровня' : 'Примеры OTT-размещений');
+      elapsed = 0;
+      lastTime = performance.now();
+      updateProgress();
+    }
+    function selectLevel(nextLevel){ level = nextLevel; render(); }
+    function advance(){ positions[level] = (positions[level] + 1) % groups[level].length; render(); }
+    function renderPause(){
+      pauseButton.classList.toggle('is-paused', paused);
+      pauseButton.setAttribute('aria-pressed', paused ? 'true' : 'false');
+      pauseButton.setAttribute('aria-label', paused ? 'Продолжить смену примеров' : 'Приостановить смену примеров');
+    }
+    function tick(now){
+      var delta = now - lastTime;
+      lastTime = now;
+      if(!paused && visible && !document.hidden){
+        elapsed += delta;
+        if(elapsed >= duration) advance();
+        updateProgress();
+      }
+      requestAnimationFrame(tick);
+    }
+    wrap.querySelectorAll('[data-jump],[data-switch]').forEach(function(button){
+      button.addEventListener('click', function(){ selectLevel(button.dataset.jump || button.dataset.switch); });
+    });
+    wrap.querySelectorAll('.tv-app-tile').forEach(function(tile){
+      tile.addEventListener('click', function(){ selectLevel('ott'); });
+      tile.addEventListener('keydown', function(event){
+        if(event.key === 'Enter' || event.key === ' '){ event.preventDefault(); selectLevel('ott'); }
+      });
+    });
+    dots.forEach(function(dot){
+      dot.addEventListener('click', function(){
+        var index = Number(dot.dataset.dot);
+        if(dot.dataset.level !== level) return;
+        positions[level] = groups[level].indexOf(index);
+        render();
+      });
+    });
+    pauseButton.addEventListener('click', function(){ paused = !paused; lastTime = performance.now(); renderPause(); });
+    display.style.cursor = 'pointer';
+    display.addEventListener('click', advance);
+    display.addEventListener('keydown', function(event){
+      if(event.key === 'Enter' || event.key === ' '){ event.preventDefault(); advance(); }
+    });
+    document.addEventListener('visibilitychange', function(){ lastTime = performance.now(); });
+    if('IntersectionObserver' in window){
+      var observer = new IntersectionObserver(function(entries){ visible = entries[0].isIntersecting; lastTime = performance.now(); }, {threshold:0.1});
+      observer.observe(wrap);
+    }
+    reducedMotion.addEventListener('change', function(event){ if(event.matches){ paused = true; renderPause(); } });
+    render();
+    renderPause();
+    requestAnimationFrame(tick);
+  })();
+})();
+</script>
+
+</body>
+</html>
