@@ -1,0 +1,5 @@
+*.docx
+~$*
+output/
+.netlify/
+.DS_Store

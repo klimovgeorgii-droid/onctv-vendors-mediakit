@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>onCTV by Adspector — реклама на Smart TV</title>
+<title>onCTV Vendors by Adspector — реклама на Smart TV</title>
 <meta name="description" content="onCTV — реклама на главном экране дома: в интерфейсе операционной системы Smart TV и внутри стриминговых приложений. Форматы, охват, верификация и коммерческая выгода для агентств и брендов.">
 <link rel="icon" type="image/svg+xml" href="assets/mark-pink.svg">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -301,12 +301,6 @@ nav.primary-nav a:hover{ color:#fff; }
 }
 .tv-pill--os .tv-pill-dot{ background:#9b51e0; }
 
-.tv-pill--ott{
-  bottom:140px; right:-26px;
-  animation:pillFloatB 7s ease-in-out infinite alternate;
-}
-.tv-pill--ott .tv-pill-dot{ background:var(--pink); }
-
 .tv-pill:hover{
   animation-play-state:paused;
   transform:scale(1.06);
@@ -348,41 +342,6 @@ nav.primary-nav a:hover{ color:#fff; }
   justify-content:space-between;
   padding:2px 8px clamp(10px, 1.5vw, 14px);
 }
-.tv-topbar-switches{
-  display:inline-flex;
-  align-items:center;
-  gap:8px;
-}
-.tv-switch-pill{
-  height:44px;
-  width:44px;
-  display:flex;
-  align-items:center;
-  border-radius:var(--r-sm);
-  border:none;
-  background:transparent;
-  color:rgba(255,255,255,.2);
-  cursor:pointer;
-  padding:0;
-  transition:width .3s ease, color .3s ease;
-  user-select:none;
-}
-.tv-switch-pill::before{
-  content:""; display:block; width:100%; height:5px; border-radius:var(--r-btn);
-  background:currentColor;
-  transition:box-shadow .3s ease;
-}
-.tv-switch-pill:hover{
-  color:rgba(255,255,255,.45);
-}
-.tv-switch-pill.is-active[data-switch="os"]{
-  color:#b678f5;
-  width:48px;
-}
-.tv-switch-pill.is-active[data-switch="ott"]{
-  color:var(--pink);
-  width:48px;
-}
 .tv-topbar-right .tv-topbar-pill--sm{
   display:block;
   height:5px; width:22px; border-radius:var(--r-btn);
@@ -418,9 +377,7 @@ nav.primary-nav a:hover{ color:#fff; }
 .tv-slide-img{
   width:100%; height:100%; object-fit:cover; display:block;
 }
-.tv-slide[data-level="ott"] .tv-slide-img,
 #tv-slide-os-xiaomi .tv-slide-img{object-fit:contain;}
-.tv-slide[data-level="ott"] .tv-slide-overlay{background:none;}
 .tv-slide-overlay{
   position:absolute;
   inset:0;
@@ -455,46 +412,6 @@ nav.primary-nav a:hover{ color:#fff; }
   text-overflow:ellipsis;
 }
 
-/* TV App Launcher Row (3 uniform tiles for OTT, highlighted together on OTT) */
-.tv-app-row{
-  display:grid;
-  grid-template-columns:repeat(3, 1fr);
-  gap:clamp(8px, 1.2vw, 12px);
-  margin-top:clamp(12px, 1.6vw, 16px);
-  transition:all .35s ease;
-}
-.tv-app-tile{
-  min-height:44px;
-  background:rgba(255,255,255,.06);
-  border:1px solid rgba(255,255,255,.1);
-  border-radius:var(--r-sm);
-  padding:clamp(9px, 1.2vw, 12px) 10px;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  color:var(--lav-l);
-  font-size:clamp(12px, 1.1vw, 13.5px);
-  font-weight:600;
-  letter-spacing:.01em;
-  cursor:pointer;
-  transition:all .35s var(--ease-spring-soft);
-  user-select:none;
-}
-.tv-app-tile:hover{
-  background:rgba(255,255,255,.14);
-  border-color:rgba(255,255,255,.25);
-  color:#fff;
-  transform:translateY(-1px);
-}
-/* When switched to OTT, ALL 3 tiles are highlighted simultaneously */
-.tv-app-row.is-active .tv-app-tile{
-  background:linear-gradient(135deg, rgba(248,140,255,.24), rgba(129,141,255,.2));
-  border-color:rgba(248,140,255,.8);
-  color:#ffffff;
-  font-weight:700;
-  transform:translateY(-2px);
-}
-
 /* Segmented dots / timeline */
 .tv-nav-dots{
   display:flex;
@@ -522,14 +439,10 @@ nav.primary-nav a:hover{ color:#fff; }
 @media (max-width:540px){
   .tv-pill{ font-size:11px; padding:6px 12px; }
   .tv-pill--os{ top:-28px; left:8px; }
-  .tv-pill--ott{ bottom:128px; right:8px; }
   .tv-slide-sub{ display:none; }
 }
 @media (max-width:360px){
-  .tv-app-row{grid-template-columns:minmax(0,1.15fr) minmax(0,1.1fr) minmax(0,.75fr); gap:4px;}
-  .tv-app-tile{min-width:0; padding-inline:4px;}
-  .tv-pill--ott{bottom:144px;}
-}
+  }
 
 /* ============ stat rail (01) ============ */
 .stat-rail{ display:grid; grid-template-columns:repeat(3,1fr); gap:var(--sp-5); margin-bottom:clamp(44px,6vw,68px); }
@@ -712,7 +625,6 @@ nav.primary-nav a:hover{ color:#fff; }
 .tv-format-desc{ font-size:var(--fs-base); color:var(--lav-l); line-height:1.5; padding:0 1.4em; margin-bottom:1em; }
 .tv-format-shot{ margin:0 1.4em 1.2em; border-radius:var(--r-sm); overflow:hidden; aspect-ratio:16/9; }
 .tv-format-shot-img{ width:100%; height:100%; object-fit:cover; display:block; }
-.tv-format-shot-img[src="assets/onctv-apps-start.jpg"],
 .tv-format-shot-img[src="assets/xiaomi-patchwall-homepage.png"]{object-fit:contain;}
 .tv-format-shot-ph{
   width:100%; height:100%; display:flex; align-items:center; justify-content:center;
@@ -1492,7 +1404,7 @@ footer{ background:var(--navy-deepest); padding:48px 0 34px; }
 }
 
 
-.fmt-card[data-product="apps"] .screen-img{object-fit:contain;}
+
 .screen-img {
   width: 100%;
   height: 100%;
@@ -1631,6 +1543,16 @@ html{scroll-padding-top:88px;}
   .fmt-logos{grid-template-columns:repeat(2,minmax(0,1fr)); gap:16px 12px;}
 }
 
+
+/* Vendors edition */
+.tv-topbar-label{font-size:12px;font-weight:600;color:var(--lav-l);letter-spacing:.08em;}
+.tv-pill--os{pointer-events:none;}
+.cjm-journey-grid{grid-template-columns:repeat(3,minmax(0,1fr));}
+.fmt-grid{grid-template-columns:minmax(0,1fr);}
+.fmt-vendor-layout{display:grid;grid-template-columns:minmax(0,1.1fr) minmax(0,1fr);gap:32px;align-items:start;}
+.fmt-vendor-preview,.fmt-vendor-copy{display:flex;flex-direction:column;gap:24px;min-width:0;}
+@media(max-width:900px){.cjm-journey-grid{grid-template-columns:minmax(0,1fr);}.fmt-vendor-layout{grid-template-columns:minmax(0,1fr);gap:24px;}}
+
 </style>
 </head>
 <body>
@@ -1679,7 +1601,7 @@ html{scroll-padding-top:88px;}
         <p class="eyebrow"><svg class="mark-dot" style="color:var(--pink)"><use href="#onctv-mark"/></svg>2026 · Медиакит для агентств и брендов</p>
         <h1><img class="hero-logo" src="assets/onctv-logo-white.svg" alt="onCTV by Adspector" width="569" height="226" fetchpriority="high"></h1>
         <p class="headline">Реклама на большом экране, когда пользователь выбирает, что смотреть</p>
-        <p class="sub">Размещаем рекламу в интерфейсе Smart TV и внутри приложений для просмотра видео: от первого контакта на главном экране до показа перед началом контента.</p>
+        <p class="sub">Размещаем рекламу в интерфейсе Smart TV и предустановленных фирменных приложениях производителей: от первого включения телевизора до выбора контента.</p>
         <div class="cta-row">
           <a class="btn btn-primary" href="#contact">Получить медиаплан <svg class="btn-arrow" width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></a>
           <a class="btn btn-ghost" href="#formats">Смотреть форматы</a>
@@ -1689,21 +1611,16 @@ html{scroll-padding-top:88px;}
       <div class="hero-tv-col">
         <a class="hero-offer hero-offer--floating" href="#contact">Получите Smart TV-размещение на лучших условиях</a>
         <div class="hero-tv-wrap" role="region" aria-roledescription="карусель" aria-label="Примеры размещений onCTV">
-          <button type="button" class="tv-pill tv-pill--os is-active" data-jump="os" aria-label="Показать OS-уровень">
+          <div class="tv-pill tv-pill--os is-active">
             <span class="tv-pill-dot"></span>
             <span class="tv-pill-text">OS-уровень</span>
-          </button>
-          <button type="button" class="tv-pill tv-pill--ott" data-jump="ott" aria-label="Показать OTT-размещения">
-            <span class="tv-pill-dot"></span>
-            <span class="tv-pill-text">OTT-размещения</span>
-          </button>
+          </div>
+
 
           <div class="hero-tv-frame">
             <div class="tv-topbar">
-              <div class="tv-topbar-switches" role="tablist" aria-label="Уровень интеграции">
-                <button type="button" class="tv-switch-pill is-active" data-switch="os" role="tab" aria-selected="true" aria-label="OS-уровень"></button>
-                <button type="button" class="tv-switch-pill" data-switch="ott" role="tab" aria-selected="false" aria-label="OTT-размещения"></button>
-              </div>
+              <span class="tv-topbar-label">onCTV Vendors</span>
+
               <div class="tv-topbar-right">
                 <span class="tv-topbar-pill tv-topbar-pill--sm"></span>
               </div>
@@ -1742,32 +1659,11 @@ html{scroll-padding-top:88px;}
                   <span class="tv-slide-sub">Баннер на главном экране Smart TV при включении</span>
                 </div>
               </div>
-              <div class="tv-slide" id="tv-slide-ott-pay" data-index="4" data-level="ott" aria-hidden="true">
-                <img class="tv-slide-img" src="assets/onctv-apps-pay.jpg" alt="Пример OTT-рекламы Яндекс Пэй с QR-кодом" width="1017" height="577">
-                <div class="tv-slide-overlay"></div>
-                <div class="tv-slide-badge">
-                  <span class="tv-slide-vendor">OTT · Онлайн-кинотеатры</span>
-                  <span class="tv-slide-sub">In-Stream видеореклама (Pre-Roll, Switch-Roll)</span>
-                </div>
-              </div>
-              <div class="tv-slide" id="tv-slide-ott-start" data-index="5" data-level="ott" aria-hidden="true">
-                <img class="tv-slide-img" src="assets/onctv-apps-start.jpg" alt="Пример OTT-рекламы онлайн-кинотеатра START" width="866" height="502">
-                <div class="tv-slide-overlay"></div>
-                <div class="tv-slide-badge"><span class="tv-slide-vendor">OTT · Онлайн-кинотеатры</span><span class="tv-slide-sub">In-Stream видеореклама (Pre-Roll, Switch-Roll)</span></div>
-              </div>
+
+
             </div>
 
-            <div class="tv-app-row" role="group" aria-label="OTT-приложения">
-              <div class="tv-app-tile" role="button" tabindex="0" title="Перейти к OTT-размещениям">
-                <span class="tv-app-name">Приложения</span>
-              </div>
-              <div class="tv-app-tile" role="button" tabindex="0" title="Перейти к OTT-размещениям">
-                <span class="tv-app-name">Кинотеатры</span>
-              </div>
-              <div class="tv-app-tile" role="button" tabindex="0" title="Перейти к OTT-размещениям">
-                <span class="tv-app-name">ТВ-Каналы</span>
-              </div>
-            </div>
+
 
             <div class="tv-carousel-controls">
               <div class="tv-nav-dots" role="group" aria-label="Примеры OS-уровня">
@@ -1775,8 +1671,8 @@ html{scroll-padding-top:88px;}
                 <button type="button" class="tv-dot" data-dot="1" data-level="os" aria-label="Пример 2 из 4: Xiaomi" aria-controls="tv-slide-os-xiaomi"><span class="tv-dot-track" aria-hidden="true"><span class="tv-dot-fill"></span></span></button>
                 <button type="button" class="tv-dot" data-dot="2" data-level="os" aria-label="Пример 3 из 4: TCL" aria-controls="tv-slide-os-tcl"><span class="tv-dot-track" aria-hidden="true"><span class="tv-dot-fill"></span></span></button>
                 <button type="button" class="tv-dot" data-dot="3" data-level="os" aria-label="Пример 4 из 4: LG" aria-controls="tv-slide-os-lg"><span class="tv-dot-track" aria-hidden="true"><span class="tv-dot-fill"></span></span></button>
-                <button type="button" class="tv-dot" data-dot="4" data-level="ott" aria-label="Пример 1 из 2: Яндекс Пэй" aria-controls="tv-slide-ott-pay" hidden><span class="tv-dot-track" aria-hidden="true"><span class="tv-dot-fill"></span></span></button>
-                <button type="button" class="tv-dot" data-dot="5" data-level="ott" aria-label="Пример 2 из 2: START" aria-controls="tv-slide-ott-start" hidden><span class="tv-dot-track" aria-hidden="true"><span class="tv-dot-fill"></span></span></button>
+
+
               </div>
               <button class="tv-play-toggle" type="button" aria-label="Приостановить смену примеров" aria-pressed="false">
                 <svg class="tv-pause-icon" width="14" height="14" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><path d="M4 3h3v10H4zm5 0h3v10H9z"/></svg>
@@ -1806,7 +1702,7 @@ html{scroll-padding-top:88px;}
         <div class="adv-item"><span class="adv-num"><span data-count data-to="5" data-decimals="0">0</span><sup>+</sup></span><span class="adv-cap">лет работы с CTV</span></div>
         <div class="adv-item"><span class="adv-num"><span data-count data-to="1000" data-decimals="0">1 000</span><sup>+</sup></span><span class="adv-cap">размещённых рекламных кампаний в CTV</span></div>
         <div class="adv-item"><span class="adv-num"><span data-count data-to="45" data-decimals="0">0</span><sup>+</sup> млн</span><span class="adv-cap">Smart TV доступно на нашем инвентаре</span></div>
-        <div class="adv-item"><span class="adv-num"><span data-count data-to="850" data-decimals="0">0</span><sup>+</sup> млн</span><span class="adv-cap">показов в месяц — совокупный объём в приложениях и ОС</span></div>
+        <div class="adv-item"><span class="adv-num"><span data-count data-to="350" data-decimals="0">0</span><sup>+</sup> млн</span><span class="adv-cap">показов в месяц — совокупный объём в ОС и предустановленных приложениях от производителей</span></div>
       </div>
 
       <div class="trust reveal">
@@ -1957,10 +1853,10 @@ html{scroll-padding-top:88px;}
       <div class="section-head reveal">
         <div class="chapter-mark"><span class="num">02</span><span class="divider"></span><span>Пользовательский путь и форматы</span></div>
         <h2 class="cjm-title">Точки контакта с аудиторией на каждом из этапов взаимодействия с контентом</h2>
-        <p class="lead">На протяжении всего пользования Smart TV форматы onCTV находятся прямо перед глазами зрителя: от первого включения до выбора контента, просмотра видео и перехода на сайт со смартфона.</p>
+        <p class="lead">На протяжении всего пользования Smart TV форматы onCTV находятся прямо перед глазами зрителя: от первого включения и выбора контента до перехода на сайт со смартфона.</p>
       </div>
 
-      <!-- 4 сценария пути зрителя с визуализацией экранов -->
+      <!-- 3 сценария пути зрителя с визуализацией экранов -->
       <div class="cjm-journey-grid reveal-stagger">
         <!-- Сценарий 01 -->
         <div class="cjm-step-card">
@@ -1978,9 +1874,7 @@ html{scroll-padding-top:88px;}
           </div>
           <h4>Главный экран ОС</h4>
           <p class="cjm-step-desc">Контакт с аудиторией до выбора приложения для просмотра контента. Максимальный фокус пользователя на интерфейсе Smart TV.</p>
-          <div class="cjm-step-tags">
-            <span class="cjm-step-tag accent">onCTV Vendors</span>
-          </div>
+
         </div>
 
         <!-- Сценарий 02 -->
@@ -1999,37 +1893,12 @@ html{scroll-padding-top:88px;}
           </div>
           <h4>Меню и витрины: Discovery</h4>
           <p class="cjm-step-desc">Реклама органично интегрирована в каталог контента, карусели лаунчера и рекомендации. Попадает в поле зрения в момент принятия решения о просмотре.</p>
-          <div class="cjm-step-tags">
-            <span class="cjm-step-tag accent">onCTV Vendors</span>
-          </div>
+
         </div>
 
         <!-- Сценарий 03 -->
         <div class="cjm-step-card">
-          <div class="cjm-step-badge"><b>3</b><span class="cjm-step-label">Просмотр</span></div>
-          <div class="tv-preview-frame">
-            <div class="tv-preview-screen screen-video">
-              <div class="ui-ad-overlay">
-                <span class="ui-ad-tag"><svg width="10" height="10" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 14.5v-9l6 4.5-6 4.5z"/></svg> РЕКЛАМА</span>
-                <span class="ui-ad-time">0:15 · 100% SOUND ON</span>
-              </div>
-              <div class="ui-center-visual">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"/></svg>
-                <span>IN-STREAM ВИДЕО</span>
-              </div>
-              <div class="ui-progress-bar"><div class="ui-progress-fill"></div></div>
-            </div>
-          </div>
-          <h4>Видео в OTT: Pre-Roll & Switch-Roll</h4>
-          <p class="cjm-step-desc">Полноэкранный видеоролик перед контентом или при переключении каналов в онлайн-кинотеатрах. Взаимодействие с ЦА в момент потребления контента.</p>
-          <div class="cjm-step-tags">
-            <span class="cjm-step-tag">onCTV Apps</span>
-          </div>
-        </div>
-
-        <!-- Сценарий 04 -->
-        <div class="cjm-step-card">
-          <div class="cjm-step-badge"><b>4</b><span class="cjm-step-label">Доп. возможности</span></div>
+          <div class="cjm-step-badge"><b>3</b><span class="cjm-step-label">Доп. возможности</span></div>
           <div class="tv-preview-frame">
             <div class="tv-preview-screen screen-qr">
               <div class="ui-qr-left">
@@ -2044,10 +1913,7 @@ html{scroll-padding-top:88px;}
           </div>
           <h4>Second Screen: QR и диплинки</h4>
           <p class="cjm-step-desc">QR-код или клик с пульта, расширяющие возможности пользователя. Дополнительный инструмент для мгновенного перехода пользователя на сайт или совершения целевого действия.</p>
-          <div class="cjm-step-tags">
-            <span class="cjm-step-tag accent">onCTV Vendors</span>
-            <span class="cjm-step-tag">onCTV Apps</span>
-          </div>
+
         </div>
       </div>
 
@@ -2122,23 +1988,22 @@ html{scroll-padding-top:88px;}
         <p class="daypart-note">Подбираем время показа с учётом аудитории, контента и доступного инвентаря выбранной площадки.</p>
       </section>
 
-      <!-- Блок форматов onCTV Vendors и onCTV Apps -->
+      <!-- Форматы onCTV Vendors -->
       <div class="fmt-section-wrap" id="formats">
         <div class="fmt-section-header reveal">
-          <h3>Два уровня закупки форматов</h3>
-          <p>Объединяем прямой доступ к операционным системам производителей ТВ и рекламу внутри ведущих стриминговых сервисов</p>
+          <h3>Контакт с аудиторией в момент максимальной вовлеченности</h3>
+          <p>Прямой доступ к операционным системам производителей ТВ и реклама в предустановленных фирменных приложениях вендоров</p>
         </div>
         <div class="fmt-grid reveal-stagger">
 
-        <div class="fmt-card" role="button" tabindex="0" data-product="vendors" aria-label="Смотреть форматы onCTV Vendors">
-          <div class="fmt-head"><h3>onCTV Vendors</h3><div class="sub">OS-уровень</div></div>
-          <p class="fmt-desc">Реклама размещается на уровне операционной системы или фирменного интерфейса производителя: на главном экране, в меню, рекомендациях, лончере или предустановленных приложениях.</p>
-          <div class="device-frame">
+        <div class="fmt-card fmt-card--vendors" role="button" tabindex="0" data-product="vendors" aria-label="Смотреть форматы onCTV Vendors">
+<div class="fmt-head"><h3>onCTV Vendors</h3><div class="sub">OS-уровень</div></div>
+<div class="fmt-vendor-layout"><div class="fmt-vendor-preview"><div class="device-frame">
             <div class="screen">
               <img class="screen-img" src="homehero.jpg" alt="onCTV Vendors — Home Hero в интерфейсе Smart TV" loading="lazy">
             </div>
           </div>
-          <div class="fmt-partners">
+<div class="fmt-partners">
             <span class="fmt-group-label">Производители Smart TV</span>
             <div class="fmt-logos">
               <img class="fmt-logo" src="assets/logos/haier.webp" alt="Haier">
@@ -2148,32 +2013,15 @@ html{scroll-padding-top:88px;}
             </div>
             <span class="fmt-group-label">Производители ОС</span>
             <ul class="fmt-list"><li>Big Fish</li><li>Whale TV</li><li>Wild Red</li></ul>
-          </div>
-          <p class="fmt-meta"><b>Таргетинг:</b> гео, тип экрана, жанр, частота просмотра, приложения, время показа, диагональ</p>
-          <p class="fmt-note">Набор форматов, таргетингов, пикселей, диплинков и параметров отчётности зависит от конкретного производителя, операционной системы, модели устройства и схемы закупки.</p>
-          <p class="fmt-benefit"><b>Что получает рекламодатель:</b> контакт с пользователем до запуска контента, заметный формат на большом экране и возможность работать с инвентарём конкретного производителя или операционной системы.</p>
-          <div class="fmt-cap">Ёмкость: &gt; 350 000 000 показов / месяц</div>
-          <div class="fmt-open-hint">Смотреть все форматы <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
-        </div>
+          </div></div><div class="fmt-vendor-copy"><p class="fmt-desc">Реклама размещается на уровне операционной системы или фирменного интерфейса производителя: на главном экране, в меню, рекомендациях, лончере или предустановленных приложениях.</p>
+<p class="fmt-meta"><b>Таргетинг:</b> гео, тип экрана, жанр, частота просмотра, приложения, время показа, диагональ</p>
+<p class="fmt-note">Набор форматов, таргетингов, пикселей, диплинков и параметров отчётности зависит от конкретного производителя, операционной системы, модели устройства и схемы закупки.</p>
+<p class="fmt-benefit"><b>Что получает рекламодатель:</b> контакт с пользователем до запуска контента, заметный формат на большом экране и возможность работать с инвентарём конкретного производителя или операционной системы.</p>
+<div class="fmt-cap">Ёмкость: &gt; 350 000 000 показов / месяц</div>
+<div class="fmt-open-hint">Смотреть все форматы <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></div></div></div>
+</div>
 
-        <div class="fmt-card" role="button" tabindex="0" data-product="apps" aria-label="Смотреть форматы onCTV Apps">
-          <div class="fmt-head"><h3>onCTV Apps</h3><div class="sub">In-app-уровень</div></div>
-          <p class="fmt-desc">Реклама показывается внутри приложений на Smart TV и других CTV-устройствах: в онлайн-кинотеатрах, видеосервисах, ТВ-приложениях и агрегаторах контента.</p>
-          <div class="device-frame">
-            <div class="screen">
-              <img class="screen-img" src="assets/onctv-apps-yandex-pay.jpg" alt="onCTV Apps — пример In-Stream рекламы Яндекс Пэй с QR-кодом" loading="lazy">
-            </div>
-          </div>
-          <div class="fmt-groups">
-            <div class="fmt-group"><span class="fmt-group-label">TV-Streaming</span><ul class="fmt-list"><li>Switch-Roll</li><li>Patch-Roll</li></ul></div>
-            <div class="fmt-group"><span class="fmt-group-label">VOD (Video on Demand)</span><ul class="fmt-list"><li>Pre-Roll</li></ul></div>
-          </div>
-          <p class="fmt-meta"><b>Таргетинг:</b> гео, соц-дем, канал, история контента за 30 дней, время показа, диагональ, регулируемый частотный кап</p>
-          <p class="fmt-note">Доступность конкретного формата зависит от приложения, источника инвентаря и рекламного SDK. Нельзя представлять весь список форматов как одновременно доступный во всех приложениях.</p>
-          <p class="fmt-benefit"><b>Что получает рекламодатель:</b> доступ к контентной среде, настройку размещений по приложениям и возможность анализировать кампанию с учётом доступных технических параметров и событий.</p>
-          <div class="fmt-cap">Ёмкость: &gt; 500 000 000 показов / месяц</div>
-          <div class="fmt-open-hint">Смотреть все форматы <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
-        </div>
+
 
         </div>
       </div>
@@ -2544,25 +2392,6 @@ html{scroll-padding-top:88px;}
           ]
         }
       ]
-    },
-    apps: {
-      eyebrow: 'onCTV Apps · In-app-уровень',
-      title: 'Форматы onCTV Apps',
-      groups: [
-        {
-          formats: [
-            {
-              name: 'In-Stream форматы (Streaming TV & VOD)',
-              open: true,
-              desc: 'Показ рекламы происходит как в Streaming TV с форматами Switch-Roll и Patch-Roll, так и в VOD (Video on demand) с Pre-Roll.',
-              click: 'Сайт клиента в браузере или переход в приложение / без перехода',
-              targeting: 'ГЕО, соц-дем, канал, история контента за 30 дней, время показа, диагональ, частотный кап',
-              verify: 'Пиксель любого верификатора',
-              shot: 'assets/onctv-apps-start.jpg'
-            }
-          ]
-        }
-      ]
     }
   };
 
@@ -2736,106 +2565,37 @@ html{scroll-padding-top:88px;}
     }
   });
 
-  /* Hero carousel: independent OS/OTT groups and a six-second visible-time progress. */
+  /* Four vendor examples, each shown for six seconds of visible time. */
   (function(){
-    var wrap = document.querySelector('.hero-tv-wrap');
-    if(!wrap) return;
-    var slides = Array.from(wrap.querySelectorAll('.tv-slide'));
-    var dots = Array.from(wrap.querySelectorAll('.tv-dot'));
-    var dotGroup = wrap.querySelector('.tv-nav-dots');
-    var pauseButton = wrap.querySelector('.tv-play-toggle');
-    var display = wrap.querySelector('.tv-display');
-    var appRow = wrap.querySelector('.tv-app-row');
-    var reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
-    var groups = {os:[], ott:[]};
-    slides.forEach(function(slide, index){ groups[slide.dataset.level].push(index); });
-    var positions = {os:0, ott:0};
-    var level = 'os';
-    var duration = 6000;
-    var elapsed = 0;
-    var lastTime = performance.now();
-    var visible = true;
-    var paused = reducedMotion.matches;
-    var activeFill = null;
-
-    function updateProgress(){
-      if(activeFill) activeFill.style.transform = 'scaleX(' + Math.min(elapsed / duration, 1) + ')';
-    }
+    var wrap=document.querySelector('.hero-tv-wrap');
+    if(!wrap)return;
+    var slides=Array.from(wrap.querySelectorAll('.tv-slide'));
+    var dots=Array.from(wrap.querySelectorAll('.tv-dot'));
+    var pauseButton=wrap.querySelector('.tv-play-toggle');
+    var display=wrap.querySelector('.tv-display');
+    var reducedMotion=window.matchMedia('(prefers-reduced-motion: reduce)');
+    var index=0,duration=6000,elapsed=0,lastTime=performance.now(),visible=true,paused=reducedMotion.matches,activeFill;
+    function progress(){if(activeFill)activeFill.style.transform='scaleX('+Math.min(elapsed/duration,1)+')';}
     function render(){
-      var index = groups[level][positions[level]];
-      slides.forEach(function(slide, i){
-        slide.classList.toggle('is-active', i === index);
-        slide.setAttribute('aria-hidden', i === index ? 'false' : 'true');
+      slides.forEach(function(slide,i){slide.classList.toggle('is-active',i===index);slide.setAttribute('aria-hidden',i===index?'false':'true');});
+      dots.forEach(function(dot,i){
+        dot.classList.toggle('is-active',i===index);
+        if(i===index)dot.setAttribute('aria-current','true');else dot.removeAttribute('aria-current');
+        dot.querySelector('.tv-dot-fill').style.transform='scaleX(0)';
       });
-      dots.forEach(function(dot, i){
-        dot.hidden = dot.dataset.level !== level;
-        dot.classList.toggle('is-active', i === index);
-        if(i === index) dot.setAttribute('aria-current', 'true');
-        else dot.removeAttribute('aria-current');
-        dot.querySelector('.tv-dot-fill').style.transform = 'scaleX(0)';
-      });
-      activeFill = dots[index].querySelector('.tv-dot-fill');
-      wrap.querySelectorAll('[data-jump],[data-switch]').forEach(function(button){
-        var selected = (button.dataset.jump || button.dataset.switch) === level;
-        button.classList.toggle('is-active', selected);
-        if(button.hasAttribute('data-switch')) button.setAttribute('aria-selected', selected ? 'true' : 'false');
-        else button.setAttribute('aria-pressed', selected ? 'true' : 'false');
-      });
-      appRow.classList.toggle('is-active', level === 'ott');
-      dotGroup.setAttribute('aria-label', level === 'os' ? 'Примеры OS-уровня' : 'Примеры OTT-размещений');
-      elapsed = 0;
-      lastTime = performance.now();
-      updateProgress();
+      activeFill=dots[index].querySelector('.tv-dot-fill');elapsed=0;lastTime=performance.now();progress();
     }
-    function selectLevel(nextLevel){ level = nextLevel; render(); }
-    function advance(){ positions[level] = (positions[level] + 1) % groups[level].length; render(); }
-    function renderPause(){
-      pauseButton.classList.toggle('is-paused', paused);
-      pauseButton.setAttribute('aria-pressed', paused ? 'true' : 'false');
-      pauseButton.setAttribute('aria-label', paused ? 'Продолжить смену примеров' : 'Приостановить смену примеров');
-    }
-    function tick(now){
-      var delta = now - lastTime;
-      lastTime = now;
-      if(!paused && visible && !document.hidden){
-        elapsed += delta;
-        if(elapsed >= duration) advance();
-        updateProgress();
-      }
-      requestAnimationFrame(tick);
-    }
-    wrap.querySelectorAll('[data-jump],[data-switch]').forEach(function(button){
-      button.addEventListener('click', function(){ selectLevel(button.dataset.jump || button.dataset.switch); });
-    });
-    wrap.querySelectorAll('.tv-app-tile').forEach(function(tile){
-      tile.addEventListener('click', function(){ selectLevel('ott'); });
-      tile.addEventListener('keydown', function(event){
-        if(event.key === 'Enter' || event.key === ' '){ event.preventDefault(); selectLevel('ott'); }
-      });
-    });
-    dots.forEach(function(dot){
-      dot.addEventListener('click', function(){
-        var index = Number(dot.dataset.dot);
-        if(dot.dataset.level !== level) return;
-        positions[level] = groups[level].indexOf(index);
-        render();
-      });
-    });
-    pauseButton.addEventListener('click', function(){ paused = !paused; lastTime = performance.now(); renderPause(); });
-    display.style.cursor = 'pointer';
-    display.addEventListener('click', advance);
-    display.addEventListener('keydown', function(event){
-      if(event.key === 'Enter' || event.key === ' '){ event.preventDefault(); advance(); }
-    });
-    document.addEventListener('visibilitychange', function(){ lastTime = performance.now(); });
-    if('IntersectionObserver' in window){
-      var observer = new IntersectionObserver(function(entries){ visible = entries[0].isIntersecting; lastTime = performance.now(); }, {threshold:0.1});
-      observer.observe(wrap);
-    }
-    reducedMotion.addEventListener('change', function(event){ if(event.matches){ paused = true; renderPause(); } });
-    render();
-    renderPause();
-    requestAnimationFrame(tick);
+    function advance(){index=(index+1)%slides.length;render();}
+    function renderPause(){pauseButton.classList.toggle('is-paused',paused);pauseButton.setAttribute('aria-pressed',paused?'true':'false');pauseButton.setAttribute('aria-label',paused?'Продолжить смену примеров':'Приостановить смену примеров');}
+    function tick(now){var delta=now-lastTime;lastTime=now;if(!paused&&visible&&!document.hidden){elapsed+=delta;if(elapsed>=duration)advance();progress();}requestAnimationFrame(tick);}
+    dots.forEach(function(dot,i){dot.addEventListener('click',function(){index=i;render();});});
+    pauseButton.addEventListener('click',function(){paused=!paused;lastTime=performance.now();renderPause();});
+    display.style.cursor='pointer';display.addEventListener('click',advance);
+    display.addEventListener('keydown',function(event){if(event.key==='Enter'||event.key===' '){event.preventDefault();advance();}});
+    document.addEventListener('visibilitychange',function(){lastTime=performance.now();});
+    if('IntersectionObserver' in window)new IntersectionObserver(function(entries){visible=entries[0].isIntersecting;lastTime=performance.now();},{threshold:.1}).observe(wrap);
+    reducedMotion.addEventListener('change',function(event){if(event.matches){paused=true;renderPause();}});
+    render();renderPause();requestAnimationFrame(tick);
   })();
 })();
 </script>
